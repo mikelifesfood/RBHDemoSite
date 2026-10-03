@@ -1,0 +1,19 @@
+RBH SAFETY PLATFORM V1.1 — PREMIUM TEAL UI
+
+SCOPE
+- Platform Site visual update only.
+- RBH Company Site / dashboard workflow unchanged.
+- No database changes.
+- No SQL required.
+
+VISUAL DIRECTION
+- Deep midnight navy navigation/header
+- Teal-to-aqua gradients inspired by the supplied reference
+- Ice-white content background
+- Premium white cards with restrained shadows
+- Aqua active navigation and primary actions
+- Gradient section headers
+- Refined drawer, table, badge, field, and button styling
+
+DEPLOYMENT
+Upload this repository build to GitHub after the previously required Platform V1 SQL has already been applied.

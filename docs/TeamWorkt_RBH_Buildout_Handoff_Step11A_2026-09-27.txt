@@ -1,0 +1,727 @@
+TEAMWORKT SAFETY / RBH BUILD-OUT HANDOFF
+Pause Point: Step 11A complete
+Date: 2026-09-27
+
+======================================================================
+1. PURPOSE OF THIS HANDOFF
+======================================================================
+
+This document is the continuation handoff for the RBH Safety application, which is the current live blueprint TeamWorkt Safety intends to use as the basis for future customer deployments.
+
+The immediate goal is to continue the RBH feature build one controlled step at a time without breaking the existing workflow, security model, notifications, exports, or current production behavior.
+
+Current pause point:
+- Step 11 In-App Notification Center is implemented.
+- Step 11A UI polish is implemented.
+- The notification bell/alert box is now red with a subtle gradient.
+- Step 12 is next: Notification Acknowledgment + Acknowledgment History.
+
+IMPORTANT:
+RBH remains the working blueprint. After feature/security freeze, RBH should be converted into a sanitized, repeatable master customer template with no RBH customer data.
+
+======================================================================
+2. SOURCE OF TRUTH / FILE RULES
+======================================================================
+
+For the new chat, the SOURCE OF TRUTH should be the newest GitHub ZIP downloaded AFTER the Step 11A dashboard has been committed.
+
+Latest dashboard file from this build session:
+- RBH_dashboard_STEP11A_red_gradient_alert.txt
+
+Step 11 database migration:
+- RBH_STEP11_IN_APP_NOTIFICATION_CENTER_V1.txt
+
+Step 10 notification Edge Function:
+- RBH_EDGE_FUNCTION_send-action-assignment-email_BREVO_V9.txt
+- Source-control form:
+  RBH_send-action-assignment-email_STEP10_index.ts
+
+Step 10 dashboard baseline:
+- RBH_dashboard_STEP10_targeted_email_notifications.txt
+
+Step 11 test query:
+- RBH_STEP11_NOTIFICATION_TEST_QUERY.txt
+
+Working rules:
+1. Make ONE discrete feature/update at a time.
+2. Do not bundle unrelated improvements.
+3. Before changing a feature with database/security implications, inspect the current source and existing RLS/functions first.
+4. Prefer the simplest implementation that preserves security.
+5. User prefers full updated files as .txt for copy/paste into GitHub, not diffs.
+6. When SQL is required, provide the complete SQL as a .txt file.
+7. Always state the exact filename the SQL should be saved under in Supabase SQL Editor.
+8. Always state deployment order clearly:
+   - SQL first when needed.
+   - Edge Function first when needed.
+   - dashboard.html after backend changes.
+9. User prefers not to use Terminal.
+10. Do not change or remove working features unless explicitly requested.
+11. Keep current mobile behavior working.
+12. Keep current English/Spanish support working.
+13. Keep all secrets out of GitHub and dashboard.html.
+
+======================================================================
+3. CURRENT PLATFORM / DEPLOYMENT CONTEXT
+======================================================================
+
+Current RBH app:
+- GitHub-hosted frontend.
+- Supabase backend.
+- No current Vercel or Cloudflare deployment for RBH.
+- Dashboard URL currently used for RBH:
+  https://mikelifesfood.github.io/RBH/dashboard.html
+
+Existing infrastructure includes:
+- Supabase Auth
+- Supabase database
+- Supabase RLS
+- Supabase Storage
+- Supabase Edge Functions
+- Brevo transactional email
+- Audit/activity history
+- English/Spanish preference support
+- PDF / CSV export
+- Report attachments and corrective-action evidence
+
+Existing Brevo-related secrets used by the transactional function:
+- BREVO_API_KEY
+- MAIL_FROM_EMAIL
+- MAIL_FROM_NAME
+- DASHBOARD_URL
+- LOGO_URL
+
+Existing notify-report/new-report infrastructure may also use:
+- NOTIFY_TO
+- WEBHOOK_SECRET
+
+Do not expose secret values in GitHub, client code, or the handoff.
+
+======================================================================
+4. CORE WORKFLOW
+======================================================================
+
+Current six-step workflow:
+
+Step 1 - Review
+Step 2 - Investigation
+Step 3 - Action Plan
+Step 4 - Complete Action
+Step 5 - Verification
+Step 6 - Close
+
+Ownership model:
+
+Case Owner / Investigator
+- Owns Steps 1-3.
+- Can be Admin, Safety Manager, or Supervisor.
+- Separate from the Corrective Action Owner.
+
+Corrective Action Owner
+- Owns Step 4.
+- Can be a qualifying dashboard user.
+- Existing database field: assigned_user_id.
+
+Verification Owner
+- Owns Step 5 when specifically assigned.
+- Must be active Admin or Safety Manager.
+- Optional.
+- If no verifier is assigned, verification remains in the shared Admin/Safety Manager queue.
+
+Closure
+- Step 6 remains Admin/Safety Manager controlled.
+
+Admins:
+- Full workflow access.
+- Admin tab access.
+- Override verification assignment when needed.
+
+Safety Managers:
+- Full operational workflow access.
+- No Admin tab.
+
+Supervisors:
+- Can work Steps 1-3 only when assigned as Investigator.
+- Can work Step 4 only when assigned as Corrective Action Owner.
+- Cannot verify Step 5.
+- Cannot close Step 6.
+- Cannot make regulatory screening decisions.
+
+Read Only:
+- View only.
+- No operational workflow updates.
+
+======================================================================
+5. REGULATORY / INJURY SAFEGUARDS
+======================================================================
+
+Important design rule:
+A Supervisor Investigator can work Step 1 on an injury report, but cannot complete Step 1 until an Admin or Safety Manager has completed the regulatory screening.
+
+Supervisors do NOT gain Cal/OSHA screening authority.
+
+Current regulatory design:
+- Worksite jurisdiction matters, not employee residence or company HQ.
+- Do not imply the app itself makes a final legal determination.
+- Do not imply the app automatically files with OSHA / Cal/OSHA unless an actual regulator integration is later built.
+- California language should use elapsed time and “immediately/as soon as practical,” not a false “8-hour countdown.”
+- Regulatory warnings must remain visible even when optional workflow guidance is hidden.
+
+Current persistent regulatory timer behavior:
+- Injury report + screening Pending/Yes + awareness timestamp:
+  elapsed time remains visible throughout the workflow.
+- Pending = amber.
+- Yes = red.
+- 4+ hours = stronger warning.
+- 8+ hours = prominent escalation.
+- No screening result = no active timer.
+- Review Screening from later steps temporarily opens Step 1.
+- A Return to Current Step button appears so the user can return to the true workflow step.
+
+======================================================================
+6. COMPLETED BUILD STEPS
+======================================================================
+
+STEP 1 - Auto-scroll / focus
+- On workflow transition, next step docks correctly.
+- Accessibility focus moves to new heading.
+- Reduced motion respected.
+
+STEP 2 - Instruction cleanup
+- Removed repetitive instruction boxes.
+- Shortened helpers and footer guidance.
+- Regulatory warnings preserved.
+
+STEP 3 - Show / Hide Guidance
+- Optional guidance toggle.
+- Guidance hides optional helpers only.
+- Required validation, permissions, and regulatory warnings remain visible.
+
+STEP 4 - Persist Guidance Preference
+- profiles.show_workflow_guidance.
+- RPC-based update rather than broad profile writes.
+- Preference available in My Profile.
+
+STEP 4A - Sticky workflow polish
+- Fixed title peeking above sticky workflow bar.
+- Uses measured header height.
+
+STEP 5 - Cal/OSHA elapsed warning
+- Uses calosha_awareness_at.
+- Elapsed time, not “time remaining.”
+- Persistent escalation logic.
+
+STEP 5A - Field style consistency
+- Date/datetime fields match the rest of the UI.
+
+STEP 6 - Hierarchy of Controls
+- Added corrective_control_type.
+- Values:
+  elimination
+  substitution
+  engineering
+  administrative
+  ppe
+  other
+- Visible in Steps 4/5, PDF, CSV, activity.
+- Restart clears it.
+
+STEP 6A - Persistent Regulatory Banner
+- Compact regulatory banner remains visible throughout workflow when applicable.
+
+STEP 6B - Regulatory Return Button
+- Review Screening opens Step 1.
+- Return to Current Step button replaces the Review Screening link while temporarily reviewing Step 1.
+
+STEP 7 - Investigator Assignment
+- Added investigator_user_id.
+- Case Owner / Investigator card in Step 1.
+- Assign to me.
+- Admin/Safety Manager can assign/reassign.
+- Read Only cannot be investigator.
+- Restart clears investigator.
+- Reopen preserves investigator.
+- PDF/CSV/activity/inbox updated.
+
+STEP 8 - Investigator vs Action Owner Permissions
+- Investigator Supervisor owns Steps 1-3.
+- Action Owner Supervisor owns Step 4.
+- Server-side protections added.
+- Managers retain Steps 1-6.
+- Regulatory screening stays manager-only.
+- My Work now understands Investigator work.
+- Corrective Action Owner and Investigator are no longer treated as the same responsibility.
+
+STEP 9 - Verification Owner
+- Added verifier_user_id.
+- Verification Owner is optional.
+- Shared verification queue when unassigned.
+- Assigned verifier can be Admin/Safety Manager only.
+- Safety Manager cannot verify a record assigned to another reviewer unless reassigned.
+- Admin override retained.
+- Restart clears verifier.
+- Verifier included in PDF/CSV/activity.
+- Independence warning if Verifier = Action Owner, but no hard block for small organizations.
+
+STEP 10 - Targeted Email Notifications
+- Uses existing Brevo infrastructure.
+- Existing Edge Function:
+  send-action-assignment-email
+- Updated to V9.
+- New routing:
+  Investigator assignment/reassignment -> Investigator
+  Corrective Action assignment -> Action Owner
+  Changes requested -> Action Owner
+  Verification assignment -> Verifier
+  Verification requested ->
+    assigned Verifier when one exists
+    otherwise shared Admin/Safety Manager group
+- English/Spanish behavior preserved.
+- Duplicate-safe server-side notification event keys.
+- No new SQL was needed because report_notification_events already supports text notification types.
+- notify-report remains separate for new-report notifications.
+
+STEP 11 - In-App Notification Center
+- Added database-backed in-app notifications.
+- Table:
+  public.report_user_notifications
+- Server-side trigger:
+  rbh_emit_report_user_notifications_trg
+  -> rbh_emit_report_user_notifications()
+- Notification events include:
+  New report -> Admin/Safety Managers
+  Investigator assigned -> Investigator
+  Action assigned -> Action Owner
+  Verification requested -> assigned Verifier or shared reviewer queue
+  Verification assigned -> Verifier
+  Changes requested -> Action Owner
+- Notifications are action-aware.
+- Stale work automatically resolves when assignment/workflow ownership changes.
+- Clicking a notification:
+  marks it Viewed
+  opens the related report
+  DOES NOT clear the bell count yet
+- No historical backfill. Notifications begin after Step 11 deployment.
+- Bell refreshes periodically and when the browser becomes active.
+
+STEP 11A - Notification Bell UI Polish
+- Bell/alert button changed to red.
+- Subtle red gradient.
+- White bell icon.
+- Readable count badge.
+- No SQL change.
+- All Step 11 behavior unchanged.
+
+======================================================================
+7. CURRENT NOTIFICATION MODEL
+======================================================================
+
+Email and in-app notifications are separate layers.
+
+EMAIL:
+- Transactional.
+- Delivered through Brevo.
+- Deep-link back to authenticated report.
+- Minimal report detail in email.
+- Sensitive incident/report information remains behind login.
+
+IN-APP:
+- Persistent action queue.
+- User-specific.
+- Database-backed.
+- Currently supports Viewed state.
+- Bell count intentionally still represents unacknowledged actionable work.
+
+Planned notification lifecycle:
+
+Sent
+-> Viewed
+-> Acknowledged
+-> Completed / Resolved
+
+Important:
+Opening a notification is NOT acknowledgment.
+
+======================================================================
+8. NEXT STEP: STEP 12
+======================================================================
+
+NEXT BUILD:
+STEP 12 - Notification Acknowledgment + Acknowledgment History
+
+Goal:
+Make the bell count represent UNACKNOWLEDGED actionable notifications.
+
+Required behavior:
+
+1. Each active notification should have an explicit:
+   Acknowledge
+   button/control.
+
+2. Clicking Acknowledge should:
+   - save acknowledged_at
+   - save the acknowledging user
+   - immediately reduce the bell count
+   - keep the notification in history
+   - NOT falsely mark the underlying workflow task complete
+
+3. Viewed and Acknowledged remain separate:
+   - Viewed = user opened/read it.
+   - Acknowledged = user accepted awareness/responsibility.
+   - Completed/Resolved = underlying task no longer active.
+
+4. Notification panel should clearly distinguish:
+   - New / unviewed
+   - Viewed but not acknowledged
+   - Acknowledged
+   - Resolved/history
+
+5. Existing automatic resolution logic from Step 11 must remain.
+   Examples:
+   - Reassignment resolves old assignee notification.
+   - Shared verification alerts resolve when a specific verifier is assigned.
+   - Completed workflow work resolves related active alerts.
+
+6. Acknowledged notifications must remain auditable.
+   Do not delete notification rows just because the count goes down.
+
+7. Bell badge should count only:
+   active + unacknowledged
+   notifications belonging to the current user.
+
+8. Read Only users should still not receive operational ownership alerts.
+
+9. Mobile layout must remain usable.
+
+10. Do not disturb Step 10 Brevo emails.
+
+Before Step 12 changes are made:
+- Inspect the current report_user_notifications table and RPCs from Step 11.
+- Reuse existing acknowledged_at if present.
+- Add only the smallest necessary database/RPC changes.
+
+======================================================================
+9. ROADMAP AFTER STEP 12
+======================================================================
+
+The planned sequence was revised so Multiple Corrective Actions moves earlier.
+
+Recommended order:
+
+Step 12
+- Notification acknowledgment + history.
+
+Step 13
+- Multiple Corrective Action Plans.
+- Introduce a proper child table, likely report_corrective_actions.
+- Do NOT add corrective_action_2, assigned_user_id_2, etc.
+- Each action should have:
+  description
+  hierarchy/control type
+  owner
+  due date
+  priority
+  status
+
+Step 14
+- Multiple action completion / evidence / verification.
+- Each Action Owner completes only their action.
+- Each action receives:
+  completion note
+  evidence
+  completed by / at
+  verification owner
+  verification note
+  verified by / at
+  changes requested
+- Report cannot close until all required actions are verified.
+- Overall display should support something like:
+  Corrective Actions: 2 of 3 verified
+
+Later:
+- Due-soon / overdue escalation.
+- PWA / device push.
+- Protected injury / OSHA recordkeeping addendum.
+- Similar incident / pattern alert.
+- Lesson Learned / Safety Brief generator.
+
+======================================================================
+10. MULTIPLE CORRECTIVE ACTION DESIGN DECISION
+======================================================================
+
+This feature is NOT built yet.
+
+Current model is still:
+1 report
+-> 1 corrective action
+-> 1 action owner
+-> 1 due date
+-> 1 completion
+-> 1 verification
+
+Future model should be:
+1 report
+-> many corrective actions
+
+Each corrective action should be a separate database record.
+
+Example:
+
+Incident
+  Corrective Action 1
+    Owner A
+    Due date
+    Completion
+    Evidence
+    Verification
+
+  Corrective Action 2
+    Owner B
+    Due date
+    Completion
+    Evidence
+    Verification
+
+  Corrective Action 3
+    Owner C
+    Due date
+    Completion
+    Evidence
+    Verification
+
+Do not implement this by adding numbered columns to reports.
+
+======================================================================
+11. IMPORTANT SECURITY / CLONE-READINESS RULES
+======================================================================
+
+RBH is intended to become the future customer blueprint.
+
+Before selling/deploying to customers, complete a dedicated customer-clone/security freeze.
+
+Requirements:
+
+- No RBH-specific email addresses hardcoded.
+- No RBH-specific user UUIDs hardcoded.
+- No secrets in GitHub.
+- No production secrets in dashboard.html.
+- Dynamic notification recipients from roles/assignments.
+- All RLS policies reproducible from migrations.
+- All Storage policies reproducible.
+- All functions/triggers reproducible.
+- Edge Functions included in source control.
+- Auth redirect URLs configurable.
+- Company name/logo/colors configurable.
+- Customer starts with zero RBH:
+  reports
+  users
+  attachments
+  audit history
+- Initial customer Admin provisioning documented.
+- Create a clean QA customer from the master template and prove it works before first sale.
+
+Recommended future deployment architecture:
+
+RBH production
+-> sanitized TeamWorkt Safety master template
+-> independent customer deployment
+
+Each paying customer should ideally receive:
+- Separate Supabase project.
+- Separate Auth.
+- Separate Storage.
+- Separate Edge Functions.
+- Separate secrets.
+- Separate database/data.
+- Separate frontend deployment/repo as appropriate.
+
+Do not use a live RBH production database with customer data as the customer clone source.
+
+======================================================================
+12. MASTER TEMPLATE / SUPABASE FUTURE STATE
+======================================================================
+
+After RBH feature/security freeze, consolidate the SQL history into a clean reproducible migration package.
+
+Target structure:
+
+supabase/
+  migrations/
+    001_base_schema.sql
+    002_roles_permissions.sql
+    003_storage_security.sql
+    004_workflow.sql
+    005_notifications.sql
+    ...
+  functions/
+    notify-report/
+      index.ts
+    send-action-assignment-email/
+      index.ts
+  config.toml
+  seed.sql
+
+The customer deployment should eventually become:
+
+Create customer project
+-> deploy master Supabase configuration
+-> configure secrets
+-> configure company branding
+-> create initial Admin
+-> smoke test
+-> go live
+
+======================================================================
+13. CURRENT ROLE SUMMARY
+======================================================================
+
+ADMIN
+- Everything.
+- Admin tab.
+- Can assign Investigator.
+- Can assign Corrective Action Owner.
+- Can assign/reassign Verifier.
+- Can override verifier assignment.
+- Can verify.
+- Can close.
+- Can reopen/restart.
+
+SAFETY MANAGER
+- Everything operational.
+- No Admin tab.
+- Can assign Investigator.
+- Can assign Corrective Action Owner.
+- Can assign/reassign Verifier.
+- Can verify when shared or assigned to them.
+- Cannot verify a case specifically assigned to another Safety Manager unless reassigned.
+- Can close.
+- Can reopen/restart.
+
+SUPERVISOR
+- Investigator assignment:
+  Steps 1-3.
+- Corrective Action Owner assignment:
+  Step 4.
+- Can hold both responsibilities.
+- No Step 5 verification.
+- No Step 6 closure.
+- No regulatory screening authority.
+- No Admin tab.
+
+READ ONLY
+- View only.
+
+======================================================================
+14. REGRESSION FEATURES THAT MUST NOT BREAK
+======================================================================
+
+Every future dashboard update should preserve:
+
+- Employee reporting form.
+- Existing reports.
+- Authentication.
+- Roles.
+- Admin screen.
+- My Profile.
+- Guidance toggle/preference.
+- Six-step workflow.
+- Sticky workflow header.
+- Regulatory timer/banner.
+- Regulatory Return button.
+- Investigator assignment.
+- Investigator Supervisor Steps 1-3.
+- Corrective Action Owner Step 4.
+- Verifier assignment.
+- Verification shared queue.
+- Admin verification override.
+- Corrective-action evidence.
+- Notes.
+- Activity Timeline.
+- Workflow restart.
+- Reopen behavior.
+- PDF export.
+- PDF attachment appendix.
+- CSV export.
+- English/Spanish support.
+- Brevo assignment emails.
+- Changes-requested emails.
+- Verification emails.
+- Investigator emails.
+- Verifier emails.
+- In-app notification bell.
+- Action-aware stale-notification resolution.
+- Mobile behavior.
+- No dark mode.
+- Existing RBH branding until master-template neutralization.
+
+======================================================================
+15. WHAT TO SEND INTO THE NEW CHAT
+======================================================================
+
+REQUIRED:
+
+1. This handoff document:
+   TeamWorkt_RBH_Buildout_Handoff_Step11A_2026-09-27.txt
+
+2. A brand-new ZIP downloaded from the CURRENT RBH GitHub repository AFTER committing Step 11A.
+   This is the most important attachment.
+   It must be treated as the new source of truth.
+
+STRONGLY RECOMMENDED IF NOT ALREADY INSIDE THE GITHUB ZIP:
+
+3. Current Step 10 Edge Function:
+   RBH_EDGE_FUNCTION_send-action-assignment-email_BREVO_V9.txt
+   or the source-control file:
+   RBH_send-action-assignment-email_STEP10_index.ts
+
+4. Step 11 SQL:
+   RBH_STEP11_IN_APP_NOTIFICATION_CENTER_V1.txt
+
+OPTIONAL:
+5. Screenshot if the current notification bell/panel appearance needs to be preserved exactly.
+6. Any Supabase error/result output if Step 12 encounters a database problem.
+
+Do NOT send:
+- Supabase service-role secret.
+- Brevo API key.
+- Passwords.
+- Any other secret values.
+
+======================================================================
+16. COPY/PASTE THIS INTO THE NEW CHAT
+======================================================================
+
+Continue the RBH / TeamWorkt Safety application build from the attached handoff and latest GitHub ZIP.
+
+Treat the newest GitHub ZIP as the source of truth. The current pause point is Step 11A: the database-backed in-app notification center is working and the notification bell has been updated to a red box with a subtle gradient.
+
+Work one discrete step at a time and do not make unrelated changes.
+
+Start with Step 12: Notification Acknowledgment + Acknowledgment History.
+
+Requirements:
+- Opening a notification marks it Viewed but does not acknowledge it.
+- Add an explicit Acknowledge action.
+- Acknowledgment should save who acknowledged it and when.
+- The bell count should represent active, unacknowledged actionable notifications.
+- Acknowledged notifications must remain in history/audit and must not simply be deleted.
+- Acknowledging a notification must not mark the underlying workflow task complete.
+- Preserve the Step 11 automatic stale-notification resolution behavior.
+- Preserve Step 10 Brevo email notifications.
+- Preserve all current role/permission boundaries.
+- Preserve mobile behavior.
+- Inspect the current Step 11 notification table/RPCs and current dashboard before making changes.
+- Use the smallest safe database changes possible.
+- If SQL is needed, give me the complete SQL as a .txt file, tell me exactly what filename to save it under in Supabase SQL Editor, and give me the deployment order.
+- Give me the complete updated dashboard.html as a .txt file for copy/paste into GitHub.
+- Do not use Terminal-based instructions unless absolutely unavoidable.
+- Do not move to the next roadmap step until Step 12 is tested and I confirm it is committed.
+
+After Step 12, the planned next major work is Multiple Corrective Actions using a proper child table, not numbered columns on reports.
+
+======================================================================
+17. CURRENT PAUSE POINT IN ONE LINE
+======================================================================
+
+Step 11A complete -> next is Step 12 Notification Acknowledgment + History.
+
+END OF HANDOFF

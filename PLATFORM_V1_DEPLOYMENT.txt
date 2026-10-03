@@ -1,0 +1,49 @@
+RBH SAFETY PLATFORM V1 — DEPLOYMENT ORDER
+
+This build separates Platform Owner administration from the RBH/company application.
+
+ROUTES
+1. Company application:
+   /dashboard.html
+   RBH Insulation remains Customer/Tenant #1 and is the blueprint for future companies.
+
+2. Platform administration:
+   /platform/
+   Only users listed in public.platform_admins can enter.
+
+DEPLOYMENT ORDER
+1. Run:
+   supabase/PLATFORM_SITE_V1_METADATA.sql
+
+2. Confirm the validation query returns RBH Insulation and:
+   admin_invites_table = organization_admin_invites
+
+3. Upload this repository ZIP to GitHub.
+
+4. Open /platform/ and sign in with the Platform Owner account.
+
+PLATFORM V1 FEATURES
+- Platform overview
+- Company directory
+- Create company
+- Company account detail/editing
+- Start date / plan / subscription metadata
+- Billing email / renewal date / employee limit
+- Initial Company Admin setup record
+- Platform feedback inbox
+- Cross-company usage summary
+- Link back to RBH Company Site
+
+IMPORTANT SECURITY DECISION
+This V1 does NOT create Supabase Auth users from the browser.
+The initial admin is recorded as pending only.
+Actual invitation/account creation will be implemented with a secure server-side mechanism
+(Supabase Edge Function/Admin API or equivalent) so no service-role key is exposed publicly.
+
+NEXT SECURITY GATE
+After secure Company Admin invitations are added:
+- Create a fake Company #2.
+- Create a separate Company #2 login.
+- Verify Company #2 cannot read or modify RBH users, reports, notes, attachments, or feedback.
+- Verify RBH cannot access Company #2.
+- Then formalize Employee and Read Only permission matrices.

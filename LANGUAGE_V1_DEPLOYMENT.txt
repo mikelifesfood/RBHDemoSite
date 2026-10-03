@@ -1,0 +1,120 @@
+RBH SAFETY - LANGUAGE V1 DEPLOYMENT (SUPABASE + GITHUB ONLY)
+=============================================================
+
+IMPORTANT
+---------
+This corrected build does NOT use Vercel.
+
+Architecture:
+- GitHub = application source / frontend hosting workflow already used by RBH
+- Supabase = database, authentication, user language preference, and secure translation Edge Function
+- Translation provider API key = stored only as a Supabase Edge Function secret
+
+WHAT THIS BUILD ADDS
+--------------------
+1. Per-user Preferred report language in My Profile:
+   - Automatic - use my device
+   - English
+   - Espanol
+
+2. Viewer-based report translation:
+   - Original submitted wording remains unchanged in Supabase.
+   - Authenticated reviewers can read narrative fields in their preferred language.
+   - Reviewers can switch English / Espanol on an open report.
+
+3. PDF language control:
+   - My reading language
+   - Original record
+   - English
+   - Espanol
+   PDF language is independent from the stored source record.
+
+4. Regulatory-language separation:
+   - Viewer language and PDF language NEVER determine an official filing language.
+   - Future Cal/OSHA, OSHA, workers' compensation, carrier, or other authority workflows must use their own authority-specific submission_language configuration based on current requirements.
+   - Preserve the original source wording for audit/history.
+
+FILES ADDED / UPDATED
+---------------------
+UPDATED: dashboard.html
+ADDED:   supabase/functions/translate-report/index.ts
+ADDED:   SUPABASE_EDGE_FUNCTION_translate-report.txt
+ADDED:   supabase/LANGUAGE_PREFERENCES_V1.sql
+UPDATED: LANGUAGE_V1_DEPLOYMENT.txt
+REMOVED: api/translate-report.js (Vercel endpoint - not needed)
+
+NO-TERMINAL DEPLOYMENT ORDER
+----------------------------
+STEP 1 - SUPABASE SQL
+1. Open your RBH Supabase project.
+2. Click SQL Editor.
+3. Create a new query.
+4. Paste the contents of supabase/LANGUAGE_PREFERENCES_V1.sql.
+5. Click Run.
+6. Confirm the query completes successfully.
+
+STEP 2 - CREATE THE SUPABASE EDGE FUNCTION
+1. In the same Supabase project, click Edge Functions in the left menu.
+2. Click Deploy a new function.
+3. Choose Via Editor.
+4. Name the function exactly: translate-report
+5. Replace the editor contents with the contents of:
+      SUPABASE_EDGE_FUNCTION_translate-report.txt
+   (The same source is also stored in supabase/functions/translate-report/index.ts for GitHub/version history.)
+6. Click Deploy function.
+
+STEP 3 - ADD THE TRANSLATION API SECRET IN SUPABASE
+1. In Supabase, open Edge Function Secrets / Secrets.
+2. Add this secret:
+      OPENAI_API_KEY = your approved OpenAI API key
+3. Save.
+4. Optional: add OPENAI_TRANSLATION_MODEL if you want to override the default gpt-5-mini model.
+5. NEVER place OPENAI_API_KEY in GitHub, dashboard.html, index.html, or any browser JavaScript.
+
+Supabase automatically provides SUPABASE_URL and SUPABASE_ANON_KEY to hosted Edge Functions.
+
+STEP 4 - GITHUB
+1. Upload/commit the updated repository files to the RBH GitHub repository using your normal GitHub web workflow.
+2. Do not add a Vercel project.
+3. Do not add any OpenAI secret to GitHub.
+4. Allow your existing GitHub-based site workflow to publish the updated dashboard as it does today.
+
+VALIDATION
+----------
+1. Sign in as an existing dashboard user.
+2. My Profile -> Preferred report language -> Espanol -> Save Profile.
+3. Reopen My Profile and confirm Espanol remains selected.
+4. Open an English report.
+5. Confirm narrative text displays in Spanish.
+6. Switch Read report in to English and confirm the English view.
+7. Confirm the original incident row in Supabase has NOT been translated or overwritten.
+8. Generate an Espanol PDF and verify labels + narrative are Spanish.
+9. Generate an English PDF and verify labels + narrative are English.
+10. Generate Original record PDF and confirm the source wording is preserved.
+11. Open a Spanish-submitted report while signed in as an English-preferring user and verify the translated English reading view.
+12. Temporarily rename/remove OPENAI_API_KEY in Supabase Edge Function Secrets and confirm translated PDF generation stops rather than silently generating the wrong language. Restore the key afterward.
+
+SECURITY / DATA NOTES
+---------------------
+- The browser sends translation requests to the Supabase Edge Function, not directly to OpenAI.
+- The Edge Function validates the current Supabase Auth user before translating.
+- OPENAI_API_KEY remains server-side in Supabase.
+- Translations are presentation copies held in the browser session cache; they do not overwrite the original incident.
+- Narrative text can contain names or sensitive employee information entered by the reporter. The translation provider therefore becomes part of the application's data-processing/security review.
+
+REGULATORY DESIGN RULE
+----------------------
+Future official reporting integrations should keep separate fields/configuration such as:
+
+  authority: calosha
+  submission_language: <language required/accepted by that authority and submission method>
+  required_fields: <current authority field set>
+  submission_method: <current approved method>
+  source_record_language: <incident.language>
+  viewer_language: <profile.preferred_language>
+
+The official submission package must follow the receiving authority's current requirements. A user's dashboard preference or PDF selection must never change what is transmitted to an authority.
+
+LANGUAGE EXPANSION NOTE
+-----------------------
+English and Spanish are wired into the current dashboard UI/PDF labels. The translation endpoint accepts additional language codes, but additional UI language packs and broader Unicode PDF font support should be added before advertising additional languages as fully supported.

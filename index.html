@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RBH Insulation — Safety & Near-Miss Report</title>
+<meta name="theme-color" content="#000000">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  /* ==========================================================================
+     RBH SAFETY · DESIGN SYSTEM v2.0 (Oct 2026)
+     White-label: to re-brand for another company, change only the BRAND block
+     and swap the logo image. Everything else reads from these tokens.
+     ========================================================================== */
+  :root{
+    /* BRAND */
+    --brand:#A1182C;            /* RBH crimson, sampled from the logo */
+    --brand-hover:#82111F;
+    --brand-tint:#FBEDEF;
+    --brand-line:#EBC3C9;
+    --chrome:#000000;           /* black bands: hero, sidebar */
+    /* NEUTRALS */
+    --ink:#18181B; --ink-2:#3F3F46; --muted:#62626A; --faint:#737379;
+    --paper:#FFFFFF; --canvas:#F4F4F5; --canvas-2:#ECECEE;
+    --line:#E4E4E7; --line-strong:#CFCFD5;
+    /* STATUS (meaning only: done / waiting) */
+    --ok:#17784A; --ok-tint:#E9F6EF; --ok-line:#BFE3CF;
+    --warn:#9A5A00; --warn-tint:#FFF5E1; --warn-line:#F0D29A;
+    /* SHAPE + TYPE */
+    --r-sm:6px; --r:8px; --r-lg:12px;
+    --ring:0 0 0 3px color-mix(in srgb,var(--brand) 26%,transparent);
+    --shadow-pop:0 14px 34px -14px rgba(0,0,0,.35),0 2px 6px rgba(0,0,0,.06);
+    --sans:"Archivo",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+    --condensed:78%;
+    /* legacy names kept so older rules keep working */
+    --red:var(--brand); --red-dark:var(--brand-hover); --surface:var(--canvas); --surface-2:var(--canvas-2);
+    --ink-bar:var(--chrome); --on-red:#fff;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--canvas);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+  button,input,select,textarea{font:inherit}
+  :focus-visible{outline:none;box-shadow:var(--ring)}
+  .wrap{max-width:720px;margin:0 auto;padding:0 16px 120px}
+
+  /* ---------- Brand bar ---------- */
+  header.brand{background:var(--paper)}
+  .brand-inner{max-width:720px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:14px}
+  .logo-plate{flex:0 0 auto;display:inline-flex;line-height:0}
+  #brandLogo{display:block;height:64px;width:auto;max-width:100%}
+  .header-right{margin-left:auto;display:flex;align-items:center;gap:18px}
+  .brand-phone{text-align:right;font-size:12.5px;color:var(--muted);line-height:1.35}
+  .brand-phone a{color:var(--ink);text-decoration:none;font-weight:700;font-size:15px;font-variant-numeric:tabular-nums}
+  .lang{flex:0 0 auto;display:inline-flex;padding:3px;border-radius:999px;background:var(--canvas-2)}
+  .lang button{border:0;background:transparent;font-weight:700;font-size:13px;padding:8px 14px;min-width:46px;border-radius:999px;cursor:pointer;color:var(--muted);line-height:1;transition:background .15s,color .15s}
+  .lang button.active{background:var(--chrome);color:#fff}
+  @media (max-width:520px){#brandLogo{height:52px}}
+  @media (max-width:440px){.brand-phone{display:none}}
+
+  /* ---------- Hero: the black sign panel ---------- */
+  .titlebar{background:var(--chrome);color:#fff;border-bottom:6px solid var(--brand)}
+  .titlebar-inner{max-width:720px;margin:0 auto;padding:30px 16px 26px}
+  .titlebar h1{font-weight:850;font-stretch:var(--condensed);font-size:clamp(38px,10vw,58px);line-height:.95;letter-spacing:-.01em;margin:0;max-width:14ch}
+  .titlebar p{margin:14px 0 0;font-size:16px;line-height:1.5;color:rgba(255,255,255,.78);max-width:46ch}
+  .facts{list-style:none;margin:20px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:8px 22px;font-size:13.5px;color:rgba(255,255,255,.7)}
+  .facts li{display:flex;align-items:center;gap:8px}
+  .facts li::before{content:"";width:7px;height:7px;background:var(--brand);flex:0 0 auto}
+  .facts b{color:#fff;font-weight:700;margin-right:2px}
+  @media (max-width:520px){.facts{flex-direction:column;gap:6px}}
+
+  /* ---------- Emergency callout ---------- */
+  .emergency{display:flex;gap:12px;align-items:flex-start;background:var(--brand-tint);border:1px solid var(--brand-line);border-radius:var(--r-lg);padding:14px 16px;margin:20px 0 0}
+  .emergency svg{flex:0 0 auto;margin-top:1px}
+  .emergency strong{display:block;font-weight:800;color:var(--brand);font-size:15.5px}
+  .emergency small{color:var(--ink-2);display:block;margin-top:2px;font-size:14px;line-height:1.5}
+
+  /* ---------- Sections (numbered: the form is a sequence) ---------- */
+  form{margin-top:8px;counter-reset:section}
+  fieldset{border:1px solid var(--line);background:var(--paper);border-radius:var(--r-lg);padding:20px 18px 22px;margin:14px 0 0;min-width:0}
+  legend{float:left;width:100%;padding:0;margin:0 0 6px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-weight:800;font-stretch:var(--condensed);font-size:23px;line-height:1.15;color:var(--ink)}
+  legend+*{clear:both}
+  legend::before{counter-increment:section;content:counter(section);display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:var(--r-sm);background:var(--chrome);color:#fff;font-size:15px;font-stretch:100%;font-weight:800;flex:0 0 auto}
+  .legend-note{display:inline-flex;align-items:center;font-stretch:100%;font-weight:600;font-size:12px;line-height:1;padding:5px 8px;border-radius:999px;background:var(--canvas-2);color:var(--muted)}
+  .step-note{font-size:14px;color:var(--muted);margin:0 0 4px}
+  .field{margin-top:18px}
+  .field:first-of-type{margin-top:6px}
+  label.lab{display:flex;align-items:center;gap:8px;font-weight:650;font-size:15px;margin-bottom:8px;flex-wrap:wrap}
+  .req{color:var(--brand);font-weight:800}
+  .opt{color:var(--faint);font-weight:500;font-size:13px}
+  .hint{color:var(--muted);font-size:13.5px;margin:-3px 0 9px}
+
+  /* ---------- Inputs ---------- */
+  input[type=text],input[type=tel],input[type=email],input[type=datetime-local],select,textarea{width:100%;font:inherit;font-size:16px;color:var(--ink);background:var(--paper);border:1px solid var(--line-strong);border-radius:var(--r);padding:12px 14px;min-height:50px;transition:border-color .15s,box-shadow .15s;appearance:none;-webkit-appearance:none}
+  input::placeholder,textarea::placeholder{color:var(--faint)}
+  select{background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2318181B' stroke-width='2.4'><path d='M6 9l6 6 6-6'/></svg>");background-repeat:no-repeat;background-position:right 14px center;padding-right:40px}
+  textarea{min-height:128px;resize:vertical;line-height:1.55}
+  input:hover,select:hover,textarea:hover{border-color:var(--faint)}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--ink);box-shadow:var(--ring)}
+  input.err,select.err,textarea.err{border-color:var(--brand);background:var(--brand-tint)}
+  .errmsg{color:var(--brand);font-size:13.5px;margin-top:8px;font-weight:700;display:none}
+  .errmsg.show{display:block}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px}
+  .grid2 .field{margin-top:0}
+  @media (max-width:520px){.grid2{grid-template-columns:1fr}}
+
+  /* ---------- Choice tiles ---------- */
+  .types{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
+  .type{position:relative;border:1px solid var(--line-strong);border-radius:var(--r);padding:14px 14px 14px 48px;cursor:pointer;background:var(--paper);min-height:76px;transition:border-color .15s,background .15s}
+  .type:hover{border-color:var(--ink-2)}
+  .type input{position:absolute;opacity:0;pointer-events:none}
+  .type .dot{position:absolute;left:15px;top:16px;width:20px;height:20px;border-radius:50%;border:2px solid var(--line-strong);background:var(--paper);transition:border-color .15s}
+  .type .dot::after{content:"";position:absolute;inset:3px;border-radius:50%;background:var(--brand);transform:scale(0);transition:transform .15s}
+  .type .t-name{font-weight:700;font-size:15.5px;display:block;line-height:1.3}
+  .type .t-desc{color:var(--muted);font-size:13.5px;margin-top:3px;display:block;line-height:1.4}
+  .type:has(input:checked){border-color:var(--brand);background:var(--brand-tint);box-shadow:inset 0 0 0 1px var(--brand)}
+  .type:has(input:checked) .dot{border-color:var(--brand)}
+  .type:has(input:checked) .dot::after{transform:scale(1)}
+  .type:has(input:focus-visible){box-shadow:var(--ring)}
+  @media (max-width:520px){.types{grid-template-columns:1fr}.type{min-height:0}}
+
+  .yn{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:2px}
+  @media (max-width:520px){.yn{grid-template-columns:1fr}}
+  .yn-opt{position:relative;display:flex;align-items:center;gap:12px;border:1px solid var(--line-strong);border-radius:var(--r);padding:14px;min-height:56px;cursor:pointer;background:var(--paper);font-size:15px;font-weight:600;transition:border-color .15s,background .15s}
+  .yn-opt:hover{border-color:var(--ink-2)}
+  .yn-opt input{margin:0;width:20px;height:20px;accent-color:var(--ink);flex:0 0 auto}
+  .yn-opt:has(input:checked){border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+  .yn-opt:has(input[value=yes]:checked){border-color:var(--brand);background:var(--brand-tint);box-shadow:inset 0 0 0 1px var(--brand)}
+  .yn-opt:has(input[value=yes]) input{accent-color:var(--brand)}
+  .injury-warn{display:none;margin-top:12px;background:var(--brand);border-radius:var(--r);padding:13px 15px;color:#fff;font-size:14.5px;font-weight:600;line-height:1.5}
+  .injury-warn.show{display:block}
+
+  /* Severity: a scale, so color intensity climbs with it */
+  .seg{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--line-strong);border-radius:var(--r);overflow:hidden;background:var(--paper)}
+  .seg label{position:relative;text-align:center;padding:12px 6px 11px;cursor:pointer;line-height:1.25;border-left:1px solid var(--line);transition:background .15s,color .15s}
+  .seg label:first-child{border-left:0}
+  .seg label::before{content:"";display:block;width:22px;height:4px;border-radius:2px;margin:0 auto 9px;background:var(--line-strong)}
+  .seg label:nth-child(2)::before{background:#E3B341}
+  .seg label:nth-child(3)::before{background:#D5642E}
+  .seg label:nth-child(4)::before{background:var(--brand)}
+  .seg label span{display:block;font-weight:700;font-size:14.5px}
+  .seg label small{color:var(--muted);font-size:12.5px}
+  .seg input{position:absolute;opacity:0}
+  .seg label:hover{background:var(--canvas)}
+  .seg label:has(input:checked){background:var(--chrome);color:#fff}
+  .seg label:has(input:checked) small{color:rgba(255,255,255,.72)}
+  .seg label:nth-child(4):has(input:checked){background:var(--brand)}
+  .seg label:has(input:focus-visible){box-shadow:inset var(--ring)}
+  @media (max-width:560px){.seg{grid-template-columns:1fr 1fr}.seg label:nth-child(3){border-left:0}.seg label:nth-child(n+3){border-top:1px solid var(--line)}}
+
+  /* ---------- Info tips ---------- */
+  .info{flex:0 0 auto;width:22px;height:22px;border-radius:50%;border:1px solid var(--line-strong);background:var(--paper);color:var(--muted);font-weight:700;font-size:12px;line-height:1;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
+  .info:hover,.info:focus-visible{border-color:var(--ink);color:var(--ink);outline:none}
+  #tip{position:fixed;z-index:50;max-width:min(300px,90vw);background:var(--chrome);color:#fff;font-size:13.5px;line-height:1.45;padding:10px 12px;border-radius:var(--r);box-shadow:var(--shadow-pop);opacity:0;transform:translateY(4px);pointer-events:none;transition:opacity .12s,transform .12s}
+  #tip.show{opacity:1;transform:translateY(0)}
+  #tip::after{content:"";position:absolute;width:10px;height:10px;background:var(--chrome);transform:rotate(45deg);left:var(--ax,20px);bottom:-5px}
+
+  /* ---------- Photos ---------- */
+  .photo-cta{display:flex;align-items:center;justify-content:center;gap:10px;background:var(--chrome);color:#fff;border:0;border-radius:var(--r);padding:15px;min-height:54px;font-weight:700;font-size:16px;width:100%;cursor:pointer;margin:6px 0 10px}
+  .photo-cta:hover{background:var(--ink-2)}
+  .drop{border:1.5px dashed var(--line-strong);border-radius:var(--r);background:var(--canvas);padding:16px;text-align:center;cursor:pointer;transition:border-color .15s,background .15s}
+  .drop svg{display:none}
+  .drop:hover,.drop.drag{border-color:var(--ink);background:var(--paper)}
+  .drop b{display:block;font-size:15px;font-weight:650}
+  .drop small{color:var(--muted);display:block;margin-top:2px;font-size:13px}
+  .files{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:8px}
+  .files li{display:flex;align-items:center;gap:11px;background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:8px 10px}
+  .files .thumb{width:46px;height:46px;flex:0 0 auto;border-radius:var(--r-sm);object-fit:cover;background:var(--canvas-2);display:flex;align-items:center;justify-content:center;color:var(--muted)}
+  .files .thumb svg{width:20px;height:20px}
+  .files .fmeta{min-width:0;flex:1}
+  .files .fname{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .files .fsize{font-size:12.5px;color:var(--muted)}
+  .files .rm{flex:0 0 auto;border:0;background:none;color:var(--muted);cursor:pointer;font-size:22px;line-height:1;width:40px;height:40px;border-radius:var(--r)}
+  .files .rm:hover{color:var(--brand);background:var(--brand-tint)}
+
+  .anon-note{display:flex;gap:10px;align-items:flex-start;background:var(--canvas);border-radius:var(--r);padding:12px 14px;font-size:14px;color:var(--ink-2);margin-top:4px}
+  .anon-note svg{flex:0 0 auto;margin-top:2px;color:var(--ok)}
+
+  /* ---------- Submit ---------- */
+  .actions{margin-top:22px}
+  button.submit{width:100%;background:var(--brand);color:#fff;border:0;border-radius:var(--r);font-weight:800;font-size:18px;min-height:60px;padding:16px;cursor:pointer;transition:background .15s}
+  button.submit:hover{background:var(--brand-hover)}
+  button.submit:active{transform:translateY(1px)}
+  button.submit:disabled{opacity:.7;cursor:default}
+  .form-foot{color:var(--muted);font-size:13.5px;text-align:center;margin-top:12px}
+  .legal-note{color:var(--muted);font-size:12.5px;text-align:center;margin:10px auto 0;max-width:60ch;line-height:1.55}
+  .send-err{display:none;background:var(--brand-tint);border:1px solid var(--brand-line);color:var(--brand);border-radius:var(--r);padding:12px 14px;font-size:14px;font-weight:700;margin-top:14px;text-align:center}
+  .send-err.show{display:block}
+
+  /* ---------- Success ---------- */
+  .success{display:none;background:var(--paper);border:1px solid var(--line);border-radius:var(--r-lg);padding:30px 20px 24px;margin-top:22px;text-align:center}
+  .success.show{display:block}
+  .success .check{width:60px;height:60px;border-radius:50%;background:var(--ok);color:#fff;display:inline-flex;align-items:center;justify-content:center;margin-bottom:12px}
+  .success h2{margin:0 0 6px;font-size:32px;font-weight:850;font-stretch:var(--condensed);line-height:1.05}
+  .success p{color:var(--muted);margin:0 auto;max-width:46ch}
+  .succ-ref{font-weight:700;font-size:16px;color:var(--ink);margin:16px 0 0}
+  .succ-ref b{color:var(--brand)}
+  .summary{text-align:left;background:var(--canvas);border-radius:var(--r);padding:14px 16px;margin:18px 0;font-size:14px;white-space:pre-wrap;line-height:1.55;max-height:320px;overflow:auto}
+  .att-failed{color:var(--muted);font-size:13px;margin:10px 0 0}
+  .succ-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+  .btn2{font-weight:700;font-size:15px;padding:12px 18px;min-height:48px;border-radius:var(--r);cursor:pointer;border:1px solid var(--line-strong);background:var(--paper);color:var(--ink)}
+  .btn2:hover{border-color:var(--ink)}
+  .btn2.primary{background:var(--chrome);border-color:var(--chrome);color:#fff}
+  .btn2.primary:hover{background:var(--ink-2)}
+
+  footer.pg{color:var(--muted);font-size:12.5px;text-align:center;margin-top:30px;line-height:1.6}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<header class="brand">
+  <div class="brand-inner">
+    <span class="logo-plate"><img id="brandLogo" src="data:image/png;base64,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" alt="R.B.H. Insulation, Inc."></span>
+    <div class="header-right">
+      <div class="brand-phone"><span data-i18n="phone_q">Questions? Call the office</span><br><a href="tel:+13103228883">310-322-8883</a></div>
+      <div class="lang" role="group" aria-label="Language / Idioma">
+        <button type="button" data-lang="en">EN</button>
+        <button type="button" data-lang="es">ES</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="titlebar">
+  <div class="titlebar-inner">
+    <h1 data-i18n="title_h1">Report a safety concern</h1>
+    <p data-i18n="title_p">See a hazard, close call, injury, or unsafe work practice? Tell the safety team. Most reports take about a minute.</p>
+    <ul class="facts" aria-label="About this form">
+      <li><span><b data-i18n="trust_fast_b">Fast</b> <span data-i18n="trust_fast_s">About 1 minute</span></span></li>
+      <li><span><b data-i18n="trust_anon_b">Anonymous</b> <span data-i18n="trust_anon_s">Name is optional</span></span></li>
+      <li><span><b data-i18n="trust_mobile_b">Jobsite ready</b> <span data-i18n="trust_mobile_s">Works on your phone</span></span></li>
+    </ul>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <form id="reportForm" novalidate>
+
+    <div class="emergency" role="note">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    <div>
+      <strong data-i18n="emg_strong">Emergency or injury right now?</strong>
+      <small data-i18n="emg_small">Call 911 and your site supervisor immediately. This form is for reporting hazards and near misses — not active emergencies.</small>
+    </div>
+    </div>
+
+    <fieldset data-step="1">
+      <legend data-i18n="s1_legend">What are you reporting?</legend>
+      <div class="types" id="typeGroup" role="radiogroup" aria-label="Report type">
+        <label class="type"><input type="radio" name="reportType" value="Near miss" required>
+          <span class="dot"></span><span class="t-name" data-i18n="t_near_n">Near miss</span>
+          <span class="t-desc" data-i18n="t_near_d">Almost went wrong — no one hurt this time</span></label>
+        <label class="type"><input type="radio" name="reportType" value="Unsafe condition">
+          <span class="dot"></span><span class="t-name" data-i18n="t_cond_n">Unsafe condition</span>
+          <span class="t-desc" data-i18n="t_cond_d">A hazard in the site, materials, or setup</span></label>
+        <label class="type"><input type="radio" name="reportType" value="Unsafe behavior">
+          <span class="dot"></span><span class="t-name" data-i18n="t_beh_n">Unsafe work practice</span>
+          <span class="t-desc" data-i18n="t_beh_d">A work practice that could cause harm</span></label>
+        <label class="type"><input type="radio" name="reportType" value="Vehicle or equipment">
+          <span class="dot"></span><span class="t-name" data-i18n="t_veh_n">Vehicle / equipment</span>
+          <span class="t-desc" data-i18n="t_veh_d">Bad truck, trailer, rig, or powered tool</span></label>
+        <label class="type"><input type="radio" name="reportType" value="Other">
+          <span class="dot"></span><span class="t-name" data-i18n="t_oth_n">Other</span>
+          <span class="t-desc" data-i18n="t_oth_d">Anything else worth flagging</span></label>
+      </div>
+      <div class="errmsg" id="err-type" data-i18n="err_type">Please choose what you're reporting.</div>
+    </fieldset>
+    <fieldset data-step="1">
+      <legend data-i18n="inj_legend">Was anyone hurt?</legend>
+      <div class="field">
+        <label class="lab"><span data-i18n="inj_q">Did this involve an actual injury or illness (not just a close call)?</span></label>
+        <div class="yn" role="radiogroup" aria-label="Injury">
+          <label class="yn-opt"><input type="radio" name="injury" value="no" checked><span data-i18n="inj_no">No — near miss / hazard only</span></label>
+          <label class="yn-opt"><input type="radio" name="injury" value="yes"><span data-i18n="inj_yes">Yes — someone was hurt</span></label>
+        </div>
+        <div class="injury-warn" id="injuryWarn" data-i18n="inj_warn">Someone was hurt. Tell your supervisor now, and call 911 for an emergency. Continue this report to document what happened.</div>
+      </div>
+    </fieldset>
+    <fieldset id="whereWhen" data-step="2">
+      <legend data-i18n="s2_legend">Where &amp; when</legend>
+      <p class="step-note" data-i18n="where_note">Enter the address where the incident or safety concern occurred. If you do not know the exact address, use the closest address or cross streets.</p>
+
+      <div class="field">
+        <label class="lab" for="site"><span data-i18n="l_site">Address of incident</span>
+          <button type="button" class="info" data-i18n-tip="tip_site" data-tip="Enter the street address where the incident or safety concern occurred. If the exact address is unknown, use the closest address or cross streets." aria-label="More info">i</button>
+        </label>
+        <input type="text" id="site" name="site" autocomplete="street-address" data-i18n-ph="ph_site_address" placeholder="e.g. 123 Main St, Los Angeles, CA">
+      </div>
+
+      <div class="field">
+        <label class="lab" for="location"><span data-i18n="l_loc">Specific spot on the site</span>
+          <span class="opt" data-i18n="opt">optional</span>
+          <button type="button" class="info" data-i18n-tip="tip_loc" data-tip="Where exactly? e.g. “attic above unit 3,” “north scaffold, 2nd level,” “equipment yard by the trucks.”" aria-label="More info">i</button>
+        </label>
+        <input type="text" id="location" name="location" data-i18n-ph="ph_loc" placeholder="e.g. attic above unit 3, north scaffold">
+      </div>
+
+      <div class="field">
+        <label class="lab" for="observed"><span data-i18n="l_when">When did you notice it?</span>
+          <span class="opt" data-i18n="opt">optional</span>
+        </label>
+        <input type="datetime-local" id="observed" name="observed">
+      </div>
+    </fieldset>
+    <fieldset data-step="2">
+      <legend data-i18n="s3_legend">Tell us what happened</legend>
+      <p class="step-note" data-i18n="what_note">Stick to the facts. A short, clear description is enough.</p>
+
+      <div class="field">
+        <label class="lab" for="description"><span data-i18n="l_desc">Describe what you saw</span> <span class="req">*</span>
+          <button type="button" class="info" data-i18n-tip="tip_desc" data-tip="Stick to the facts: what happened, what or who was involved, and how. Don’t include anyone’s medical details, Social Security number, or other private data." aria-label="More info">i</button>
+        </label>
+        <p class="hint" data-i18n="hint_desc">Include the what, where, and how. The more detail, the faster the team can fix it.</p>
+        <textarea id="description" name="description" required data-i18n-ph="ph_desc" placeholder="Describe the hazard, close call, or behavior…"></textarea>
+        <div class="errmsg" id="err-desc" data-i18n="err_desc">Please tell us what happened.</div>
+      </div>
+
+      <div class="field">
+        <label class="lab" for="hazard"><span data-i18n="l_haz">Type of hazard</span>
+          <span class="opt" data-i18n="opt">optional</span>
+          <button type="button" class="info" data-i18n-tip="tip_haz" data-tip="Best guess is fine — it helps the team route and track the report. Choose “Other” if nothing fits." aria-label="More info">i</button>
+        </label>
+        <select id="hazard" name="hazard">
+          <option value="" selected disabled data-i18n="ph_haz_sel">Select a hazard type…</option>
+          <option value="Fall / working at height" data-i18n="haz_fall">Fall / working at height</option>
+          <option value="Electrical" data-i18n="haz_elec">Electrical</option>
+          <option value="Vehicle or fleet (trucks, trailers)" data-i18n="haz_veh">Vehicle or fleet (trucks, trailers)</option>
+          <option value="Powered equipment / tools" data-i18n="haz_tools">Powered equipment / tools</option>
+          <option value="PPE (missing or wrong gear)" data-i18n="haz_ppe">PPE (missing or wrong gear)</option>
+          <option value="Housekeeping / slips, trips, falls" data-i18n="haz_house">Housekeeping / slips, trips, falls</option>
+          <option value="Material or chemical exposure (spray foam, fiberglass, adhesives)" data-i18n="haz_chem">Material or chemical exposure (spray foam, fiberglass, adhesives)</option>
+          <option value="Confined space (attic, crawlspace)" data-i18n="haz_confined">Confined space (attic, crawlspace)</option>
+          <option value="Heat / weather" data-i18n="haz_heat">Heat / weather</option>
+          <option value="Manual handling / lifting / ergonomics" data-i18n="haz_ergo">Manual handling / lifting / ergonomics</option>
+          <option value="Unsafe act or procedure" data-i18n="haz_act">Unsafe act or procedure</option>
+          <option value="Other" data-i18n="haz_other">Other</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label class="lab"><span data-i18n="l_sev">How bad could it have been?</span>
+          <span class="opt" data-i18n="opt">optional</span>
+          <button type="button" class="info" data-i18n-tip="tip_sev" data-tip="Judge the worst realistic outcome, not just what actually happened. A near miss that could have been fatal is treated as high priority." aria-label="More info">i</button>
+        </label>
+        <div class="seg" role="radiogroup" aria-label="Potential severity">
+          <label><input type="radio" name="severity" value="Minor — first aid"><span data-i18n="sev_min_n">Minor</span><small data-i18n="sev_min_d">first aid</small></label>
+          <label><input type="radio" name="severity" value="Moderate — medical treatment"><span data-i18n="sev_mod_n">Moderate</span><small data-i18n="sev_mod_d">medical</small></label>
+          <label><input type="radio" name="severity" value="Serious — lost time / hospital"><span data-i18n="sev_ser_n">Serious</span><small data-i18n="sev_ser_d">lost time</small></label>
+          <label><input type="radio" name="severity" value="Critical — could have been fatal"><span data-i18n="sev_cri_n">Critical</span><small data-i18n="sev_cri_d">could be fatal</small></label>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="lab" for="involved"><span data-i18n="l_inv">Who or what was involved / any witnesses</span>
+          <span class="opt" data-i18n="opt">optional</span>
+          <button type="button" class="info" data-i18n-tip="tip_inv" data-tip="Describe roles or companies — “a framing sub,” “the delivery driver,” “our own crew.” Naming individuals is optional; focus on what happened, not blame." aria-label="More info">i</button>
+        </label>
+        <input type="text" id="involved" name="involved" data-i18n-ph="ph_inv" placeholder="e.g. delivery driver, a framing sub, two of our crew">
+      </div>
+    </fieldset>
+    <fieldset data-step="3">
+      <legend><span data-i18n="s4_legend">Response</span> <span class="legend-note" data-i18n="dash_opt">— optional</span></legend>
+
+      <div class="field">
+        <label class="lab" for="immediate"><span data-i18n="l_imm">What was done right away?</span>
+          <button type="button" class="info" data-i18n-tip="tip_imm" data-tip="Did you make it safe, warn others, tag out equipment, or tell a supervisor? Note anything already done." aria-label="More info">i</button>
+        </label>
+        <input type="text" id="immediate" name="immediate" data-i18n-ph="ph_imm" placeholder="e.g. roped off the area and told the foreman">
+      </div>
+
+      <div class="field">
+        <label class="lab" for="suggest"><span data-i18n="l_fix">What would fix it or prevent it?</span></label>
+        <input type="text" id="suggest" name="suggest" data-i18n-ph="ph_fix" placeholder="Your suggestion, if you have one">
+      </div>
+    </fieldset>
+    <fieldset data-step="3">
+      <legend><span data-i18n="s5_legend">Photos &amp; files</span> <span class="legend-note" data-i18n="dash_opt">— optional</span></legend>
+      <p class="hint" style="margin-top:2px" data-i18n="hint_photo">A photo of the hazard helps the team act fast. On a phone you can snap one right here. Please don't photograph anyone's injuries.</p>
+      <button class="photo-cta" id="cameraBtn" type="button"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h4l2-3h6l2 3h4v13H3z"/><circle cx="12" cy="13" r="4"/></svg><span data-i18n="camera_btn">Take a photo or add a file</span></button>
+      <div class="drop" id="drop" tabindex="0" role="button" aria-label="Add photos or files">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <b data-i18n="drop_b">Choose additional photos or files</b>
+        <small data-i18n="drop_s">Images or PDFs, up to 10 files</small>
+      </div>
+      <input type="file" id="fileInput" multiple accept="image/*,application/pdf,.doc,.docx,.heic" capture="environment" style="display:none">
+      <ul class="files" id="fileList"></ul>
+    </fieldset>
+
+    <fieldset data-step="4">
+      <legend><span data-i18n="s6_legend">Your info</span> <span class="legend-note" data-i18n="dash_opt">— optional</span></legend>
+      <div class="anon-note" style="margin-bottom:4px">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <span data-i18n="anon">You can report anonymously — leave this blank. If you add your name or contact, the team can follow up or thank you. Reports are not used to get anyone in trouble.</span>
+      </div>
+
+      <div class="grid2">
+        <div class="field">
+          <label class="lab" for="name"><span data-i18n="l_name">Your name</span></label>
+          <input type="text" id="name" name="name" data-i18n-ph="ph_name" placeholder="Optional">
+        </div>
+        <div class="field">
+          <label class="lab" for="role"><span data-i18n="l_role">You are a…</span></label>
+          <select id="role" name="role">
+            <option value="" selected disabled data-i18n="ph_role_sel">Select…</option>
+            <option value="RBH employee / crew" data-i18n="role_emp">RBH employee / crew</option>
+            <option value="RBH office / management" data-i18n="role_off">RBH office / management</option>
+            <option value="Subcontractor" data-i18n="role_sub">Subcontractor</option>
+            <option value="General contractor" data-i18n="role_gc">General contractor</option>
+            <option value="Site visitor / other" data-i18n="role_vis">Site visitor / other</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label class="lab" for="contact"><span data-i18n="l_contact">Phone or email to reach you</span>
+          <button type="button" class="info" data-i18n-tip="tip_contact" data-tip="Only if you'd like a reply. Used just to follow up on this report." aria-label="More info">i</button>
+        </label>
+        <input type="text" id="contact" name="contact" data-i18n-ph="ph_contact" placeholder="Optional — phone or email">
+      </div>
+    </fieldset>
+
+    <div class="actions" id="submitActions">
+      <button type="submit" class="submit" data-i18n="btn_submit">Send report to the safety team</button>
+      <div class="send-err" id="sendErr" role="alert"></div>
+      <p class="form-foot" data-i18n="foot_submit">Takes about a minute. Report early — even if you're not sure it's a big deal.</p>
+      <p class="legal-note" data-i18n="legal_note">RBH does not retaliate against anyone who reports a safety concern in good faith (California Labor Code §6310). This information is used only to investigate and improve job-site safety.</p>
+    </div>
+  </form>
+
+  <section class="success" id="success" aria-live="polite">
+    <div class="check"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+    <h2 data-i18n="succ_h2">Report received</h2>
+    <p data-i18n="succ_p">Thank you for speaking up. Your report has been sent to the RBH safety team. Please keep your reference number below.</p>
+    <p class="succ-ref" id="succRef" style="display:none"></p>
+    <div class="summary" id="summaryBox"></div>
+    <p class="att-failed" id="attFailed" style="display:none" data-i18n="att_failed">Note: some photos couldn't be uploaded, but your report was saved.</p>
+    <div class="succ-actions">
+      <button class="btn2 primary" id="copyBtn" type="button" data-i18n="btn_copy">Copy report</button>
+      <button class="btn2" id="againBtn" type="button" data-i18n="btn_again">Submit another report</button>
+    </div>
+  </section>
+
+  <footer class="pg">
+    RBH Insulation, Inc. · 13105 Crenshaw Blvd, Hawthorne, CA 90250 · License #558799<br>
+    <span data-i18n="footer_internal">Internal safety reporting form</span>
+  </footer>
+</div>
+
+<div id="tip" role="tooltip"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------------- Supabase connection ----------------
+     SUPA_KEY is the publishable "anon" key — it is meant to live in the
+     browser. Row-level security + the submit_report()/add_attachment()
+     functions are what protect the data, so this key cannot read reports. */
+  var SUPA_URL="https://owhkxguiavgxzwvbxevj.supabase.co";
+  var SUPA_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im93aGt4Z3VpYXZneHp3dmJ4ZXZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk1Nzk4ODcsImV4cCI6MjEwNTE1NTg4N30.rBwR7sKelzzyTd6XpFrMIjg5W42TpEO_QefnOxzftrc";
+  var _sb=null;
+  function getClient(){
+    if(_sb) return _sb;
+    if(window.supabase && window.supabase.createClient){ _sb=window.supabase.createClient(SUPA_URL,SUPA_KEY); }
+    return _sb;
+  }
+
+  /* ---------------- Translations ---------------- */
+  var I18N={
+    en:{
+      phone_q:"Questions? Call the office",
+      title_h1:"Report a safety concern",
+      title_p:"See a hazard, close call, injury, or unsafe work practice? Tell the safety team. Most reports take about a minute.",
+      intro_eye:"RBH Safety", intro_h:"Speak up early. Help prevent the next incident.", intro_p:"Share what you saw. You can report anonymously, and you do not need to know every detail before sending a concern.",
+      trust_fast_b:"Fast",trust_fast_s:"About 1 minute",trust_anon_b:"Anonymous",trust_anon_s:"Name is optional",trust_mobile_b:"Jobsite ready",trust_mobile_s:"Works on your phone",
+      where_note:"Enter the address where the incident or safety concern occurred. If you do not know the exact address, use the closest address or cross streets.", what_note:"Stick to the facts. A short, clear description is enough.", camera_btn:"Take a photo or add a file", review_h:"Quick review", review_p:"Make sure the main details look right. You can go back to change anything.", btn_back:"Back", btn_next:"Continue",
+      emg_strong:"Emergency or injury right now?",
+      emg_small:"Call 911 and your site supervisor immediately. This form is for reporting hazards and near misses — not active emergencies.",
+      s1_legend:"What are you reporting?",
+      t_near_n:"Near miss", t_near_d:"Almost went wrong — no one hurt this time",
+      t_cond_n:"Unsafe condition", t_cond_d:"A hazard in the site, materials, or setup",
+      t_beh_n:"Unsafe work practice", t_beh_d:"A work practice that could cause harm",
+      t_veh_n:"Vehicle / equipment", t_veh_d:"Bad truck, trailer, rig, or powered tool",
+      t_oth_n:"Other", t_oth_d:"Anything else worth flagging",
+      err_type:"Please choose what you're reporting.",
+      s2_legend:"Where & when",
+      l_site:"Address of incident",
+      tip_site:"Enter the street address where the incident or safety concern occurred. If the exact address is unknown, use the closest address or cross streets.",
+      ph_site_address:"e.g. 123 Main St, Los Angeles, CA",
+      l_loc:"Specific spot on the site",
+      tip_loc:"Where exactly? e.g. “attic above unit 3,” “north scaffold, 2nd level,” “equipment yard by the trucks.”",
+      ph_loc:"e.g. attic above unit 3, north scaffold",
+      l_when:"When did you notice it?",
+      s3_legend:"What happened",
+      l_desc:"Describe what you saw",
+      tip_desc:"Stick to the facts: what happened, what or who was involved, and how. Don’t include anyone’s medical details, Social Security number, or other private data.",
+      hint_desc:"Include the what, where, and how. The more detail, the faster the team can fix it.",
+      ph_desc:"Describe the hazard, close call, or behavior…",
+      err_desc:"Please tell us what happened.",
+      l_haz:"Type of hazard",
+      tip_haz:"Best guess is fine — it helps the team route and track the report. Choose “Other” if nothing fits.",
+      ph_haz_sel:"Select a hazard type…",
+      haz_fall:"Fall / working at height", haz_elec:"Electrical",
+      haz_veh:"Vehicle or fleet (trucks, trailers)", haz_tools:"Powered equipment / tools",
+      haz_ppe:"PPE (missing or wrong gear)", haz_house:"Housekeeping / slips, trips, falls",
+      haz_chem:"Material or chemical exposure (spray foam, fiberglass, adhesives)",
+      haz_confined:"Confined space (attic, crawlspace)", haz_heat:"Heat / weather",
+      haz_ergo:"Manual handling / lifting / ergonomics", haz_act:"Unsafe act or procedure", haz_other:"Other",
+      l_sev:"How bad could it have been?",
+      tip_sev:"Judge the worst realistic outcome, not just what actually happened. A near miss that could have been fatal is treated as high priority.",
+      sev_min_n:"Minor", sev_min_d:"first aid", sev_mod_n:"Moderate", sev_mod_d:"medical",
+      sev_ser_n:"Serious", sev_ser_d:"lost time", sev_cri_n:"Critical", sev_cri_d:"could be fatal",
+      l_inv:"Who or what was involved / any witnesses",
+      tip_inv:"Describe roles or companies — “a framing sub,” “the delivery driver,” “our own crew.” Naming individuals is optional; focus on what happened, not blame.",
+      ph_inv:"e.g. delivery driver, a framing sub, two of our crew",
+      s4_legend:"Response", dash_opt:"optional",
+      l_imm:"What was done right away?",
+      tip_imm:"Did you make it safe, warn others, tag out equipment, or tell a supervisor? Note anything already done.",
+      ph_imm:"e.g. roped off the area and told the foreman",
+      l_fix:"What would fix it or prevent it?", ph_fix:"Your suggestion, if you have one",
+      s5_legend:"Photos & files",
+      hint_photo:"A photo of the hazard helps the team act fast. On a phone you can snap one right here. Please don't photograph anyone's injuries.",
+      drop_b:"Choose additional photos or files", drop_s:"Images or PDFs, up to 10 files",
+      s6_legend:"Your info",
+      anon:"You can report anonymously — leave this blank. If you add your name or contact, the team can follow up or thank you. Reports are not used to get anyone in trouble.",
+      l_name:"Your name", ph_name:"Optional",
+      l_role:"You are a…", ph_role_sel:"Select…",
+      role_emp:"RBH employee / crew", role_off:"RBH office / management",
+      role_sub:"Subcontractor", role_gc:"General contractor", role_vis:"Site visitor / other",
+      l_contact:"Phone or email to reach you",
+      tip_contact:"Only if you'd like a reply. Used just to follow up on this report.",
+      ph_contact:"Optional — phone or email",
+      btn_submit:"Send report to the safety team",
+      foot_submit:"Takes about a minute. Report early — even if you're not sure it's a big deal.",
+      succ_h2:"Report received",
+      succ_p:"Thank you for speaking up. Your report has been sent to the RBH safety team. Please keep your reference number below.",
+      btn_copy:"Copy report", btn_copied:"Copied ✓", btn_again:"Submit another report",
+      footer_internal:"Internal safety reporting form",
+      sum_head:"RBH INSULATION — SAFETY / NEAR-MISS REPORT", sum_submitted:"Submitted",
+      s_type:"Report type", s_site:"Incident address", s_loc:"Specific location", s_when:"When observed",
+      s_desc:"Description", s_haz:"Hazard type", s_sev:"Potential severity", s_inv:"Involved / witnesses",
+      s_imm:"Immediate action", s_fix:"Suggested fix", s_att:"Attachments", s_by:"Reported by",
+      s_role:"Role", s_contact:"Contact", s_anon:"(anonymous)", s_files:"file(s)",
+      btn_sending:"Sending…", succ_ref:"Your reference number",
+      err_send:"Couldn't send your report. Please check your internet connection and try again.",
+      att_failed:"Note: some photos couldn't be uploaded, but your report was saved.",
+      inj_legend:"Was anyone hurt?",
+      inj_q:"Did this involve an actual injury or illness (not just a close call)?",
+      inj_no:"No — near miss / hazard only",
+      inj_yes:"Yes — someone was hurt",
+      inj_warn:"Someone was hurt. Tell your supervisor now, and call 911 for an emergency. Continue this report to document what happened.",
+      legal_note:"RBH does not retaliate against anyone who reports a safety concern in good faith (California Labor Code §6310). This information is used only to investigate and improve job-site safety."
+    },
+    es:{
+      phone_q:"¿Preguntas? Llame a la oficina",
+      title_h1:"Reporte una inquietud de seguridad",
+      title_p:"¿Vio un peligro, casi accidente, lesión o práctica insegura? Avise al equipo de seguridad. La mayoría de los reportes toma alrededor de un minuto.",
+      intro_eye:"Seguridad RBH", intro_h:"Hable pronto. Ayude a prevenir el próximo incidente.", intro_p:"Comparta lo que vio. Puede reportar de forma anónima y no necesita conocer todos los detalles antes de enviar una inquietud.",
+      trust_fast_b:"Rápido",trust_fast_s:"Aproximadamente 1 minuto",trust_anon_b:"Anónimo",trust_anon_s:"El nombre es opcional",trust_mobile_b:"Listo para obra",trust_mobile_s:"Funciona en su teléfono",
+      where_note:"Ingrese la dirección donde ocurrió el incidente o problema de seguridad. Si no conoce la dirección exacta, use la dirección más cercana o las calles de cruce.", what_note:"Describa los hechos. Una explicación corta y clara es suficiente.", camera_btn:"Tomar foto o agregar archivo", review_h:"Revisión rápida", review_p:"Confirme que los datos principales estén correctos. Puede regresar para cambiar algo.", btn_back:"Atrás", btn_next:"Continuar",
+      emg_strong:"¿Emergencia o lesión en este momento?",
+      emg_small:"Llame al 911 y a su supervisor de inmediato. Este formulario es para reportar peligros y casi accidentes, no emergencias activas.",
+      s1_legend:"¿Qué desea reportar?",
+      t_near_n:"Casi accidente", t_near_d:"Estuvo cerca — esta vez nadie se lastimó",
+      t_cond_n:"Condición insegura", t_cond_d:"Un peligro en la obra, los materiales o el montaje",
+      t_beh_n:"Práctica de trabajo insegura", t_beh_d:"Una práctica de trabajo que podría causar daño",
+      t_veh_n:"Vehículo / equipo", t_veh_d:"Camión, remolque, equipo o herramienta en mal estado",
+      t_oth_n:"Otro", t_oth_d:"Cualquier otra cosa que valga la pena señalar",
+      err_type:"Por favor elija qué desea reportar.",
+      s2_legend:"Dónde y cuándo",
+      l_site:"Dirección del incidente",
+      tip_site:"Ingrese la dirección donde ocurrió el incidente o problema de seguridad. Si no conoce la dirección exacta, use la dirección más cercana o las calles de cruce.",
+      ph_site_address:"p. ej. 123 Main St, Los Angeles, CA",
+      l_loc:"Lugar específico en la obra",
+      tip_loc:"¿Dónde exactamente? p. ej. «ático sobre la unidad 3», «andamio norte, nivel 2», «patio de equipos junto a los camiones».",
+      ph_loc:"p. ej. ático sobre la unidad 3, andamio norte",
+      l_when:"¿Cuándo lo notó?",
+      s3_legend:"Qué pasó",
+      l_desc:"Describa lo que vio",
+      tip_desc:"Apéguese a los hechos: qué pasó, qué o quién estuvo involucrado y cómo. No incluya datos médicos, número de Seguro Social ni información privada de nadie.",
+      hint_desc:"Incluya el qué, el dónde y el cómo. Entre más detalle, más rápido lo puede resolver el equipo.",
+      ph_desc:"Describa el peligro, el casi accidente o el comportamiento…",
+      err_desc:"Por favor díganos qué pasó.",
+      l_haz:"Tipo de peligro",
+      tip_haz:"Con su mejor estimación basta — ayuda al equipo a dirigir y dar seguimiento al reporte. Elija «Otro» si nada aplica.",
+      ph_haz_sel:"Seleccione un tipo de peligro…",
+      haz_fall:"Caída / trabajo en altura", haz_elec:"Eléctrico",
+      haz_veh:"Vehículo o flota (camiones, remolques)", haz_tools:"Equipo / herramientas eléctricas",
+      haz_ppe:"EPP (equipo de protección faltante o incorrecto)", haz_house:"Orden y limpieza / resbalones, tropiezos, caídas",
+      haz_chem:"Exposición a materiales o químicos (espuma en aerosol, fibra de vidrio, adhesivos)",
+      haz_confined:"Espacio confinado (ático, entrepiso)", haz_heat:"Calor / clima",
+      haz_ergo:"Manejo manual / levantamiento / ergonomía", haz_act:"Acto o procedimiento inseguro", haz_other:"Otro",
+      l_sev:"¿Qué tan grave pudo haber sido?",
+      tip_sev:"Considere el peor resultado realista, no solo lo que pasó. Un casi accidente que pudo ser mortal se trata como alta prioridad.",
+      sev_min_n:"Menor", sev_min_d:"primeros auxilios", sev_mod_n:"Moderada", sev_mod_d:"atención médica",
+      sev_ser_n:"Grave", sev_ser_d:"días perdidos", sev_cri_n:"Crítica", sev_cri_d:"pudo ser mortal",
+      l_inv:"Quién o qué estuvo involucrado / testigos",
+      tip_inv:"Describa funciones o empresas — «un subcontratista de armado», «el chofer de entrega», «nuestro propio equipo». Nombrar a personas es opcional; enfóquese en lo que pasó, no en culpar.",
+      ph_inv:"p. ej. chofer de entrega, un subcontratista, dos de nuestro equipo",
+      s4_legend:"Respuesta", dash_opt:"opcional",
+      l_imm:"¿Qué se hizo de inmediato?",
+      tip_imm:"¿Aseguró el área, avisó a otros, bloqueó el equipo (tag out) o avisó a un supervisor? Anote lo que ya se hizo.",
+      ph_imm:"p. ej. acordoné el área y avisé al capataz",
+      l_fix:"¿Qué lo arreglaría o lo evitaría?", ph_fix:"Su sugerencia, si tiene una",
+      s5_legend:"Fotos y archivos",
+      hint_photo:"Una foto del peligro ayuda al equipo a actuar rápido. Desde el teléfono puede tomar una aquí mismo. Por favor no fotografíe las lesiones de nadie.",
+      drop_b:"Elija fotos o archivos adicionales", drop_s:"Imágenes o PDF, hasta 10 archivos",
+      s6_legend:"Su información",
+      anon:"Puede reportar de forma anónima — deje esto en blanco. Si agrega su nombre o contacto, el equipo puede dar seguimiento o agradecerle. Los reportes no se usan para meter a nadie en problemas.",
+      l_name:"Su nombre", ph_name:"Opcional",
+      l_role:"Usted es…", ph_role_sel:"Seleccione…",
+      role_emp:"Empleado / cuadrilla de RBH", role_off:"Oficina / gerencia de RBH",
+      role_sub:"Subcontratista", role_gc:"Contratista general", role_vis:"Visitante / otro",
+      l_contact:"Teléfono o correo para contactarle",
+      tip_contact:"Solo si desea respuesta. Se usa únicamente para dar seguimiento a este reporte.",
+      ph_contact:"Opcional — teléfono o correo",
+      btn_submit:"Enviar reporte al equipo de seguridad",
+      foot_submit:"Toma alrededor de un minuto. Repórtelo pronto — aunque no esté seguro de que sea importante.",
+      succ_h2:"Reporte recibido",
+      succ_p:"Gracias por hablar. Su reporte se envió al equipo de seguridad de RBH. Por favor guarde su número de referencia.",
+      btn_copy:"Copiar reporte", btn_copied:"Copiado ✓", btn_again:"Enviar otro reporte",
+      footer_internal:"Formulario interno de reporte de seguridad",
+      sum_head:"RBH INSULATION — REPORTE DE SEGURIDAD / CASI ACCIDENTE", sum_submitted:"Enviado",
+      s_type:"Tipo de reporte", s_site:"Dirección del incidente", s_loc:"Lugar específico", s_when:"Cuándo se observó",
+      s_desc:"Descripción", s_haz:"Tipo de peligro", s_sev:"Gravedad potencial", s_inv:"Involucrados / testigos",
+      s_imm:"Acción inmediata", s_fix:"Solución sugerida", s_att:"Adjuntos", s_by:"Reportado por",
+      s_role:"Función", s_contact:"Contacto", s_anon:"(anónimo)", s_files:"archivo(s)",
+      btn_sending:"Enviando…", succ_ref:"Su número de referencia",
+      err_send:"No se pudo enviar su reporte. Verifique su conexión a internet e intente de nuevo.",
+      att_failed:"Nota: algunas fotos no se pudieron subir, pero su reporte se guardó.",
+      inj_legend:"¿Alguien se lastimó?",
+      inj_q:"¿Hubo una lesión o enfermedad real (no solo un casi accidente)?",
+      inj_no:"No — solo casi accidente / peligro",
+      inj_yes:"Sí — alguien se lastimó",
+      inj_warn:"Alguien se lastimó. Avise a su supervisor ahora y llame al 911 si es una emergencia. Continúe este reporte para documentar lo ocurrido.",
+      legal_note:"RBH no toma represalias contra quien reporte un problema de seguridad de buena fe (Código Laboral de California §6310). Esta información se usa únicamente para investigar y mejorar la seguridad en la obra."
+    }
+  };
+
+  var CUR="en";
+  function t(k){ return (I18N[CUR] && I18N[CUR][k]!=null) ? I18N[CUR][k] : k; }
+
+  function setLang(lang){
+    if(!I18N[lang]) lang="en";
+    CUR=lang;
+    document.documentElement.lang=lang;
+    document.querySelectorAll('[data-i18n]').forEach(function(el){
+      var k=el.getAttribute('data-i18n'); if(I18N[lang][k]!=null) el.textContent=I18N[lang][k];
+    });
+    document.querySelectorAll('[data-i18n-ph]').forEach(function(el){
+      var k=el.getAttribute('data-i18n-ph'); if(I18N[lang][k]!=null) el.setAttribute('placeholder',I18N[lang][k]);
+    });
+    document.querySelectorAll('[data-i18n-tip]').forEach(function(el){
+      var k=el.getAttribute('data-i18n-tip'); if(I18N[lang][k]!=null) el.setAttribute('data-tip',I18N[lang][k]);
+    });
+    document.querySelectorAll('.lang button').forEach(function(b){
+      var on=b.getAttribute('data-lang')===lang;
+      b.classList.toggle('active',on); b.setAttribute('aria-pressed',on?'true':'false');
+    });
+  }
+  document.querySelectorAll('.lang button').forEach(function(b){
+    b.addEventListener('click',function(){ setLang(b.getAttribute('data-lang')); });
+  });
+
+  /* ---------------- Tooltips ---------------- */
+  var tip=document.getElementById('tip'), activeBtn=null;
+  function showTip(btn){
+    activeBtn=btn; tip.textContent=btn.getAttribute('data-tip'); tip.classList.add('show');
+    tip.style.left='0px'; tip.style.top='0px';
+    var r=btn.getBoundingClientRect(), tr=tip.getBoundingClientRect();
+    var left=r.left+r.width/2-tr.width/2;
+    left=Math.max(10,Math.min(left,window.innerWidth-tr.width-10));
+    var top=r.top-tr.height-10;
+    if(top<10) top=r.bottom+10;
+    tip.style.left=left+'px'; tip.style.top=top+'px';
+    var ax=r.left+r.width/2-left-5; ax=Math.max(8,Math.min(ax,tr.width-18));
+    tip.style.setProperty('--ax',ax+'px');
+  }
+  function hideTip(){ tip.classList.remove('show'); activeBtn=null; }
+  document.querySelectorAll('.info').forEach(function(b){
+    b.addEventListener('mouseenter',function(){showTip(b);});
+    b.addEventListener('mouseleave',function(){ if(activeBtn===b) hideTip(); });
+    b.addEventListener('focus',function(){showTip(b);});
+    b.addEventListener('blur',function(){ if(activeBtn===b) hideTip(); });
+    b.addEventListener('click',function(e){ e.preventDefault(); if(activeBtn===b){hideTip();}else{showTip(b);} });
+  });
+  document.addEventListener('click',function(e){ if(activeBtn && !e.target.closest('.info')) hideTip(); });
+  window.addEventListener('scroll',hideTip,true);
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') hideTip(); });
+
+  /* ---------------- Incident address ---------------- */
+  var site=document.getElementById('site');
+
+  /* ---------------- Injury guardrail ---------------- */
+  var injuryWarn=document.getElementById('injuryWarn');
+  Array.prototype.forEach.call(document.querySelectorAll('input[name="injury"]'), function(rb){
+    rb.addEventListener('change', function(){
+      var y=document.querySelector('input[name="injury"]:checked');
+      injuryWarn.classList.toggle('show', !!y && y.value==='yes');
+    });
+  });
+
+
+  /* ---------------- File attachments ---------------- */
+  var drop=document.getElementById('drop'), input=document.getElementById('fileInput'),
+      list=document.getElementById('fileList'), files=[], MAX=10;
+  function fmtSize(b){ if(b<1024) return b+' B'; if(b<1048576) return (b/1024).toFixed(0)+' KB'; return (b/1048576).toFixed(1)+' MB'; }
+  function render(){
+    list.innerHTML='';
+    files.forEach(function(f,i){
+      var li=document.createElement('li'), thumb;
+      if(f.type && f.type.indexOf('image/')===0){
+        thumb=document.createElement('img'); thumb.className='thumb'; thumb.alt='';
+        var rd=new FileReader(); rd.onload=function(e){thumb.src=e.target.result;}; rd.readAsDataURL(f);
+      } else {
+        thumb=document.createElement('div'); thumb.className='thumb';
+        thumb.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>';
+      }
+      var meta=document.createElement('div'); meta.className='fmeta';
+      meta.innerHTML='<div class="fname"></div><div class="fsize">'+fmtSize(f.size)+'</div>';
+      meta.querySelector('.fname').textContent=f.name;
+      var rm=document.createElement('button'); rm.className='rm'; rm.type='button'; rm.setAttribute('aria-label','Remove '+f.name); rm.innerHTML='&times;';
+      rm.addEventListener('click',function(){ files.splice(i,1); render(); });
+      li.appendChild(thumb); li.appendChild(meta); li.appendChild(rm); list.appendChild(li);
+    });
+  }
+  function addFiles(fl){ Array.prototype.forEach.call(fl,function(f){ if(files.length<MAX) files.push(f); }); render(); }
+  var cameraBtn=document.getElementById('cameraBtn'); if(cameraBtn) cameraBtn.addEventListener('click',function(){ input.click(); });
+  drop.addEventListener('click',function(){ input.click(); });
+  drop.addEventListener('keydown',function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); input.click(); }});
+  input.addEventListener('change',function(){ addFiles(input.files); input.value=''; });
+  ['dragenter','dragover'].forEach(function(ev){ drop.addEventListener(ev,function(e){ e.preventDefault(); drop.classList.add('drag'); }); });
+  ['dragleave','drop'].forEach(function(ev){ drop.addEventListener(ev,function(e){ e.preventDefault(); drop.classList.remove('drag'); }); });
+  drop.addEventListener('drop',function(e){ if(e.dataTransfer && e.dataTransfer.files) addFiles(e.dataTransfer.files); });
+
+  /* ---------------- Validation + submit ---------------- */
+  var form=document.getElementById('reportForm');
+  function clearErr(){
+    document.getElementById('err-type').classList.remove('show');
+    document.getElementById('err-desc').classList.remove('show');
+    document.getElementById('description').classList.remove('err');
+  }
+  var sendErr=document.getElementById('sendErr');
+  function showSendErr(){ sendErr.textContent=t('err_send'); sendErr.classList.add('show'); sendErr.scrollIntoView({behavior:'smooth',block:'center'}); }
+  function hideSendErr(){ sendErr.classList.remove('show'); }
+
+  form.addEventListener('submit',function(e){
+    e.preventDefault(); clearErr(); hideSendErr();
+    var ok=true, firstBad=null;
+    var type=form.querySelector('input[name="reportType"]:checked');
+    var desc=document.getElementById('description');
+    if(!type){ document.getElementById('err-type').classList.add('show'); ok=false; firstBad=document.getElementById('typeGroup'); }
+    if(!desc.value.trim()){ desc.classList.add('err'); document.getElementById('err-desc').classList.add('show'); ok=false; if(!firstBad) firstBad=desc; }
+    if(!ok){ if(firstBad) firstBad.scrollIntoView({behavior:'smooth',block:'center'}); return; }
+    submitReport(type.value);
+  });
+  function val(id){ var el=document.getElementById(id); return el?el.value.trim():''; }
+  function radio(name){ var el=form.querySelector('input[name="'+name+'"]:checked'); return el?el.value:''; }
+  function currentSite(){ return site ? site.value.trim() : ''; }
+
+  function buildPayload(type){
+    return {
+      report_type:type,
+      description:val('description'),
+      hazard_category:val('hazard'),
+      potential_severity:radio('severity'),
+      people_involved:val('involved'),
+      immediate_action:val('immediate'),
+      suggested_fix:val('suggest'),
+      reporter_name:val('name'),
+      reporter_role:val('role'),
+      reporter_contact:val('contact'),
+      language:CUR,
+      involves_injury:(function(){ var el=form.querySelector('input[name="injury"]:checked'); return el?el.value==="yes":false; })(),
+      job_site:currentSite(),
+      site_location:val('location'),
+      observed_at:val('observed')
+    };
+  }
+
+  function buildSummary(type, ref){
+    var lines=[];
+    function add(k,v){ if(v && v!=='') lines.push(t(k)+': '+v); }
+    add('s_type', type);
+    add('s_site', currentSite());
+    add('s_loc', val('location'));
+    add('s_when', val('observed').replace('T',' '));
+    add('s_desc', val('description'));
+    add('s_haz', val('hazard'));
+    add('s_sev', radio('severity'));
+    add('s_inv', val('involved'));
+    add('s_imm', val('immediate'));
+    add('s_fix', val('suggest'));
+    if(files.length) add('s_att', files.length+' '+t('s_files')+': '+files.map(function(f){return f.name;}).join(', '));
+    add('s_by', val('name')||t('s_anon'));
+    add('s_role', val('role'));
+    add('s_contact', val('contact'));
+    var stamp=new Date().toLocaleString();
+    var head=t('sum_head')+(ref?('  #'+ref):'');
+    return head+'\n'+t('sum_submitted')+': '+stamp+'\n\n'+lines.join('\n');
+  }
+
+  async function submitReport(type){
+    var btn=form.querySelector('button.submit');
+    btn.disabled=true; btn.textContent=t('btn_sending');
+    try{
+      var sb=getClient();
+      if(!sb) throw new Error('client-unavailable');
+      var res=await sb.rpc('submit_report',{ payload:buildPayload(type) });
+      if(res.error) throw res.error;
+      var out=res.data||{}; var id=out.id, ref=out.ref_no;
+      var failed=0;
+      for(var i=0;i<files.length;i++){
+        try{
+          var f=files[i];
+          var safe=(f.name||'file').replace(/[^a-zA-Z0-9._-]/g,'_'); if(safe.length>120) safe=safe.slice(-120);
+          var path='reports/'+id+'/'+Date.now()+'_'+i+'_'+safe;
+          var up=await sb.storage.from('report-attachments').upload(path,f,{ contentType:f.type||undefined, upsert:false });
+          if(up.error){ failed++; continue; }
+          var ins=await sb.rpc('add_attachment',{ p_report_id:id, p_storage_path:path, p_file_name:f.name, p_mime_type:f.type||null, p_size_bytes:f.size||null });
+          if(ins.error){ failed++; }
+        }catch(e){ failed++; }
+      }
+      showSuccess(type, ref, failed);
+    }catch(err){
+      console.error('submit failed', err);
+      btn.disabled=false; btn.textContent=t('btn_submit');
+      showSendErr();
+    }
+  }
+
+  function showSuccess(type, ref, failed){
+    var text=buildSummary(type, ref);
+    document.getElementById('summaryBox').textContent=text;
+    var rl=document.getElementById('succRef');
+    if(ref){ rl.style.display=''; rl.innerHTML=t('succ_ref')+': <b>#'+ref+'</b>'; } else { rl.style.display='none'; }
+    document.getElementById('attFailed').style.display = failed>0 ? '' : 'none';
+    form.style.display='none';
+    var s=document.getElementById('success'); s.classList.add('show');
+    window.scrollTo({top:0,behavior:'smooth'});
+
+    document.getElementById('copyBtn').onclick=function(){
+      var b=this;
+      function done(){ b.textContent=t('btn_copied'); setTimeout(function(){b.textContent=t('btn_copy');},1800); }
+      if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(text).then(done,fallback); } else fallback();
+      function fallback(){ var ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select(); try{document.execCommand('copy');}catch(e){} document.body.removeChild(ta); done(); }
+    };
+    document.getElementById('againBtn').onclick=function(){
+      var b=form.querySelector('button.submit'); b.disabled=false; b.textContent=t('btn_submit');
+      form.reset(); files=[]; render(); clearErr(); hideSendErr();
+      if(injuryWarn) injuryWarn.classList.remove('show');
+      s.classList.remove('show'); form.style.display='';
+      window.scrollTo({top:0,behavior:'smooth'});
+    };
+  }
+
+
+  function prefillAddressFromUrl(){
+    try{
+      var p=new URLSearchParams(window.location.search), q=p.get('address')||p.get('site');
+      if(q && site) site.value=q;
+    }catch(e){}
+  }
+
+  /* ---------------- Init: auto-detect Spanish ---------------- */
+  var pref=(navigator.language||navigator.userLanguage||'en').toLowerCase();
+  setLang(pref.indexOf('es')===0 ? 'es' : 'en'); prefillAddressFromUrl();
+})();
+</script>
+</body>
+</html>

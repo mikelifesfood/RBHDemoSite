@@ -1,0 +1,63 @@
+RBH SAFETY PLATFORM V1 — TEST CHECKLIST
+
+DEPLOYMENT
+1. Run supabase/PLATFORM_SITE_V1_METADATA.sql in Supabase.
+2. Confirm the final validation returns:
+   - RBH Insulation in public.organizations
+   - admin_invites_table = organization_admin_invites
+3. Upload the GitHub-ready ZIP to the repository.
+4. Wait for the normal site deployment to complete.
+5. Open /platform/ on the same deployed site.
+
+PLATFORM ACCESS
+1. Sign in with the Platform Owner account.
+2. Confirm the Platform Site loads.
+3. Confirm a non-platform account is denied if tested.
+
+OVERVIEW
+1. Confirm Companies = 1 before creating a test tenant.
+2. Confirm RBH Insulation appears.
+3. Confirm active user/report counts are reasonable.
+4. Confirm recent platform feedback appears if feedback exists.
+
+COMPANIES
+1. Open Companies.
+2. Confirm RBH Insulation appears.
+3. Click RBH Insulation.
+4. Confirm the company drawer opens.
+5. Save a harmless metadata change, such as Platform Notes.
+6. Refresh and confirm it persisted.
+
+CREATE COMPANY
+1. Create a clearly temporary company:
+   Name: Platform Test Company
+   Slug: platform-test-company
+   Plan: Pilot
+   Subscription: Trial
+2. Optionally enter a fake initial admin email you control.
+3. Confirm the company appears in Companies.
+4. Open the company and verify the pending admin setup record appears.
+
+FEEDBACK
+1. From the RBH Company Site, submit a test item through My Profile > Support.
+2. Return to /platform/.
+3. Confirm the feedback appears under RBH Insulation.
+4. Change its status to Reviewed.
+5. Refresh and confirm the status persisted.
+
+COMPANY SITE SEPARATION
+1. Open /dashboard.html.
+2. Confirm there is NO Platform navigation item.
+3. Confirm RBH Safety Inbox, reports, Admin, profile, and workflow still operate normally.
+4. Confirm the company site still shows RBH Insulation context.
+
+CURRENT LIMITATIONS — EXPECTED IN V1
+- Creating a pending Company Admin record does NOT yet create/invite a Supabase Auth user.
+- Stripe is NOT connected; subscription data is manually managed metadata.
+- The Employee role and final permission matrix are not yet implemented.
+- Public report intake is still temporarily defaulted to RBH until tenant-specific reporting links are built.
+- Do not onboard a real second customer until the separate-company login isolation test is completed.
+
+NEXT SECURITY GATE
+Build secure initial Company Admin invitation/account creation, create a fake Company #2 user,
+then prove Company #2 cannot access RBH profiles, reports, notes, attachments, audit history, or feedback.
