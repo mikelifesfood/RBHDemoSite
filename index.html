@@ -205,6 +205,27 @@
   .btn2.primary{background:var(--chrome);border-color:var(--chrome);color:#fff}
   .btn2.primary:hover{background:var(--ink-2)}
 
+  /* Hazard picture tiles */
+  .hz-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+  @media (max-width:560px){.hz-grid{grid-template-columns:1fr 1fr}}
+  .hz{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;text-align:center;min-height:88px;padding:12px 8px;border:1px solid var(--line-strong);border-radius:var(--r);background:var(--paper);cursor:pointer;font-size:13.5px;font-weight:650;line-height:1.25;transition:border-color .15s,background .15s}
+  .hz:hover{border-color:var(--ink-2)}
+  .hz input{position:absolute;opacity:0;pointer-events:none}
+  .hz svg{width:28px;height:28px;fill:none;stroke:var(--ink);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  .hz:has(input:checked){border-color:var(--brand);background:var(--brand-tint);box-shadow:inset 0 0 0 1px var(--brand);color:var(--brand)}
+  .hz:has(input:checked) svg{stroke:var(--brand)}
+  .hz:has(input:focus-visible){box-shadow:var(--ring)}
+
+  /* More details (collapsed) */
+  .more-details{margin-top:6px}
+  .more-details summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:1fr auto;gap:2px 12px;align-items:center;padding:14px 16px;border:1px dashed var(--line-strong);border-radius:var(--r);background:var(--canvas)}
+  .more-details summary::-webkit-details-marker{display:none}
+  .more-details summary::after{content:"+";grid-column:2;grid-row:1/3;width:32px;height:32px;border-radius:50%;background:var(--chrome);color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:600;line-height:1}
+  .more-details[open] summary::after{content:"–"}
+  .more-details summary:hover{border-color:var(--ink)}
+  .more-sum{font-weight:700;font-size:15.5px}
+  .more-hint{color:var(--muted);font-size:13.5px}
+  .more-details[open] summary{margin-bottom:4px}
   footer.pg{color:var(--muted);font-size:12.5px;text-align:center;margin-top:30px;line-height:1.6}
   @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
@@ -282,21 +303,13 @@
     </fieldset>
     <fieldset id="whereWhen" data-step="2">
       <legend data-i18n="s2_legend">Where &amp; when</legend>
-      <p class="step-note" data-i18n="where_note">Enter the address where the incident or safety concern occurred. If you do not know the exact address, use the closest address or cross streets.</p>
+      <p class="step-note" data-i18n="where_note">The street address where it happened. Not sure? Use the closest address or cross streets.</p>
 
       <div class="field">
         <label class="lab" for="site"><span data-i18n="l_site">Address of incident</span>
           <button type="button" class="info" data-i18n-tip="tip_site" data-tip="Enter the street address where the incident or safety concern occurred. If the exact address is unknown, use the closest address or cross streets." aria-label="More info">i</button>
         </label>
         <input type="text" id="site" name="site" autocomplete="street-address" data-i18n-ph="ph_site_address" placeholder="e.g. 123 Main St, Los Angeles, CA">
-      </div>
-
-      <div class="field">
-        <label class="lab" for="location"><span data-i18n="l_loc">Specific spot on the site</span>
-          <span class="opt" data-i18n="opt">optional</span>
-          <button type="button" class="info" data-i18n-tip="tip_loc" data-tip="Where exactly? e.g. “attic above unit 3,” “north scaffold, 2nd level,” “equipment yard by the trucks.”" aria-label="More info">i</button>
-        </label>
-        <input type="text" id="location" name="location" data-i18n-ph="ph_loc" placeholder="e.g. attic above unit 3, north scaffold">
       </div>
 
       <div class="field">
@@ -314,31 +327,31 @@
         <label class="lab" for="description"><span data-i18n="l_desc">Describe what you saw</span> <span class="req">*</span>
           <button type="button" class="info" data-i18n-tip="tip_desc" data-tip="Stick to the facts: what happened, what or who was involved, and how. Don’t include anyone’s medical details, Social Security number, or other private data." aria-label="More info">i</button>
         </label>
-        <p class="hint" data-i18n="hint_desc">Include the what, where, and how. The more detail, the faster the team can fix it.</p>
-        <textarea id="description" name="description" required data-i18n-ph="ph_desc" placeholder="Describe the hazard, close call, or behavior…"></textarea>
+        <p class="hint" data-i18n="hint_desc">Say what happened, where, and how. Tip: tap the microphone on your keyboard to talk instead of typing.</p>
+        <textarea id="description" name="description" required data-i18n-ph="ph_desc" placeholder="Example: The attic ladder slipped on loose scraps. Nobody fell, but it was close."></textarea>
         <div class="errmsg" id="err-desc" data-i18n="err_desc">Please tell us what happened.</div>
       </div>
 
       <div class="field">
-        <label class="lab" for="hazard"><span data-i18n="l_haz">Type of hazard</span>
+        <label class="lab" id="hazLabel"><span data-i18n="l_haz">What kind of hazard?</span>
           <span class="opt" data-i18n="opt">optional</span>
           <button type="button" class="info" data-i18n-tip="tip_haz" data-tip="Best guess is fine — it helps the team route and track the report. Choose “Other” if nothing fits." aria-label="More info">i</button>
         </label>
-        <select id="hazard" name="hazard">
-          <option value="" selected disabled data-i18n="ph_haz_sel">Select a hazard type…</option>
-          <option value="Fall / working at height" data-i18n="haz_fall">Fall / working at height</option>
-          <option value="Electrical" data-i18n="haz_elec">Electrical</option>
-          <option value="Vehicle or fleet (trucks, trailers)" data-i18n="haz_veh">Vehicle or fleet (trucks, trailers)</option>
-          <option value="Powered equipment / tools" data-i18n="haz_tools">Powered equipment / tools</option>
-          <option value="PPE (missing or wrong gear)" data-i18n="haz_ppe">PPE (missing or wrong gear)</option>
-          <option value="Housekeeping / slips, trips, falls" data-i18n="haz_house">Housekeeping / slips, trips, falls</option>
-          <option value="Material or chemical exposure (spray foam, fiberglass, adhesives)" data-i18n="haz_chem">Material or chemical exposure (spray foam, fiberglass, adhesives)</option>
-          <option value="Confined space (attic, crawlspace)" data-i18n="haz_confined">Confined space (attic, crawlspace)</option>
-          <option value="Heat / weather" data-i18n="haz_heat">Heat / weather</option>
-          <option value="Manual handling / lifting / ergonomics" data-i18n="haz_ergo">Manual handling / lifting / ergonomics</option>
-          <option value="Unsafe act or procedure" data-i18n="haz_act">Unsafe act or procedure</option>
-          <option value="Other" data-i18n="haz_other">Other</option>
-        </select>
+        <input type="hidden" id="hazard" name="hazard" value="">
+        <div class="hz-grid" role="radiogroup" aria-labelledby="hazLabel">
+          <label class="hz"><input type="radio" name="hazardPick" value="Fall / working at height"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3v18M17 3v18M7 8h10M7 13h10M7 18h10"/></svg><span data-i18n="hzs_fall">Fall / height</span></label>
+          <label class="hz"><input type="radio" name="hazardPick" value="Electrical"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg><span data-i18n="hzs_elec">Electrical</span></label>
+          <label class="hz"><input type="radio" name="hazardPick" value="Vehicle or fleet (trucks, trailers)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 7h11v9H2zM13 10h4l3 3v3h-7z"/><circle cx="6" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg><span data-i18n="hzs_veh">Truck / trailer</span></label>
+          <label class="hz"><input type="radio" name="hazardPick" value="Powered equipment / tools"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.6 2.6-2.4-.6-.6-2.4z"/></svg><span data-i18n="hzs_tools">Tools / equipment</span></label>
+          <label class="hz"><input type="radio" name="hazardPick" value="PPE (missing or wrong gear)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17h18M5 17a7 7 0 0 1 14 0M12 6v5M9 7.5V11M15 7.5V11"/></svg><span data-i18n="hzs_ppe">Safety gear (PPE)</span></label>
+          <label class="hz"><input type="radio" name="hazardPick" value="Housekeeping / slips, trips, falls"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16M7 16l3-9 4 4 3-2M10 7a1.5 1.5 0 1 0 0-.01"/></svg><span data-i18n="hzs_house">Slip / trip / mess</span></label>
+          <label class="hz"><input type="radio" name="hazardPick" value="Material or chemical exposure (spray foam, fiberglass, adhesives)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.7 3h10.6a2 2 0 0 0 1.7-3l-5-9V3M7.5 15h9"/></svg><span data-i18n="hzs_chem">Foam / fiberglass / chemicals</span></label>
+          <label class="hz"><input type="radio" name="hazardPick" value="Confined space (attic, crawlspace)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12 12 4l10 8M5 10v10h14V10M10 20v-5h4v5"/></svg><span data-i18n="hzs_confined">Attic / crawlspace</span></label>
+          <label class="hz"><input type="radio" name="hazardPick" value="Heat / weather"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><span data-i18n="hzs_heat">Heat / weather</span></label>
+          <label class="hz"><input type="radio" name="hazardPick" value="Manual handling / lifting / ergonomics"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10h16v10H4zM12 2v6M9 5l3-3 3 3"/></svg><span data-i18n="hzs_ergo">Lifting / strain</span></label>
+          <label class="hz"><input type="radio" name="hazardPick" value="Unsafe act or procedure"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0zM12 9v4M12 17h.01"/></svg><span data-i18n="hzs_act">Unsafe act</span></label>
+          <label class="hz"><input type="radio" name="hazardPick" value="Other"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg><span data-i18n="hzs_other">Other</span></label>
+        </div>
       </div>
 
       <div class="field">
@@ -353,29 +366,6 @@
           <label><input type="radio" name="severity" value="Critical — could have been fatal"><span data-i18n="sev_cri_n">Critical</span><small data-i18n="sev_cri_d">could be fatal</small></label>
         </div>
       </div>
-
-      <div class="field">
-        <label class="lab" for="involved"><span data-i18n="l_inv">Who or what was involved / any witnesses</span>
-          <span class="opt" data-i18n="opt">optional</span>
-          <button type="button" class="info" data-i18n-tip="tip_inv" data-tip="Describe roles or companies — “a framing sub,” “the delivery driver,” “our own crew.” Naming individuals is optional; focus on what happened, not blame." aria-label="More info">i</button>
-        </label>
-        <input type="text" id="involved" name="involved" data-i18n-ph="ph_inv" placeholder="e.g. delivery driver, a framing sub, two of our crew">
-      </div>
-    </fieldset>
-    <fieldset data-step="3">
-      <legend><span data-i18n="s4_legend">Response</span> <span class="legend-note" data-i18n="dash_opt">— optional</span></legend>
-
-      <div class="field">
-        <label class="lab" for="immediate"><span data-i18n="l_imm">What was done right away?</span>
-          <button type="button" class="info" data-i18n-tip="tip_imm" data-tip="Did you make it safe, warn others, tag out equipment, or tell a supervisor? Note anything already done." aria-label="More info">i</button>
-        </label>
-        <input type="text" id="immediate" name="immediate" data-i18n-ph="ph_imm" placeholder="e.g. roped off the area and told the foreman">
-      </div>
-
-      <div class="field">
-        <label class="lab" for="suggest"><span data-i18n="l_fix">What would fix it or prevent it?</span></label>
-        <input type="text" id="suggest" name="suggest" data-i18n-ph="ph_fix" placeholder="Your suggestion, if you have one">
-      </div>
     </fieldset>
     <fieldset data-step="3">
       <legend><span data-i18n="s5_legend">Photos &amp; files</span> <span class="legend-note" data-i18n="dash_opt">— optional</span></legend>
@@ -388,6 +378,37 @@
       </div>
       <input type="file" id="fileInput" multiple accept="image/*,application/pdf,.doc,.docx,.heic" capture="environment" style="display:none">
       <ul class="files" id="fileList"></ul>
+    </fieldset>
+
+    <fieldset class="more" data-step="3">
+      <legend><span data-i18n="more_legend">More details</span> <span class="legend-note" data-i18n="dash_opt">optional</span></legend>
+      <details class="more-details">
+        <summary><span class="more-sum" data-i18n="more_sum">Add more details</span><span class="more-hint" data-i18n="more_hint">Where exactly, who was there, what was done about it, and ideas to fix it.</span></summary>
+        <div class="field">
+        <label class="lab" for="location"><span data-i18n="l_loc">Specific spot on the site</span>
+          <span class="opt" data-i18n="opt">optional</span>
+          <button type="button" class="info" data-i18n-tip="tip_loc" data-tip="Where exactly? e.g. “attic above unit 3,” “north scaffold, 2nd level,” “equipment yard by the trucks.”" aria-label="More info">i</button>
+        </label>
+        <input type="text" id="location" name="location" data-i18n-ph="ph_loc" placeholder="e.g. attic above unit 3, north scaffold">
+      </div>
+        <div class="field">
+        <label class="lab" for="involved"><span data-i18n="l_inv">Who or what was involved / any witnesses</span>
+          <span class="opt" data-i18n="opt">optional</span>
+          <button type="button" class="info" data-i18n-tip="tip_inv" data-tip="Describe roles or companies — “a framing sub,” “the delivery driver,” “our own crew.” Naming individuals is optional; focus on what happened, not blame." aria-label="More info">i</button>
+        </label>
+        <input type="text" id="involved" name="involved" data-i18n-ph="ph_inv" placeholder="e.g. delivery driver, a framing sub, two of our crew">
+      </div>
+        <div class="field">
+        <label class="lab" for="immediate"><span data-i18n="l_imm">What was done right away?</span>
+          <button type="button" class="info" data-i18n-tip="tip_imm" data-tip="Did you make it safe, warn others, tag out equipment, or tell a supervisor? Note anything already done." aria-label="More info">i</button>
+        </label>
+        <input type="text" id="immediate" name="immediate" data-i18n-ph="ph_imm" placeholder="e.g. roped off the area and told the foreman">
+      </div>
+        <div class="field">
+        <label class="lab" for="suggest"><span data-i18n="l_fix">What would fix it or prevent it?</span></label>
+        <input type="text" id="suggest" name="suggest" data-i18n-ph="ph_fix" placeholder="Your suggestion, if you have one">
+      </div>
+      </details>
     </fieldset>
 
     <fieldset data-step="4">
@@ -426,7 +447,7 @@
       <button type="submit" class="submit" data-i18n="btn_submit">Send report to the safety team</button>
       <div class="send-err" id="sendErr" role="alert"></div>
       <p class="form-foot" data-i18n="foot_submit">Takes about a minute. Report early — even if you're not sure it's a big deal.</p>
-      <p class="legal-note" data-i18n="legal_note">RBH does not retaliate against anyone who reports a safety concern in good faith (California Labor Code §6310). This information is used only to investigate and improve job-site safety.</p>
+      <p class="legal-note" data-i18n="legal_note">You will not get in trouble for reporting a safety concern in good faith (California Labor Code §6310). Reports are used only to make jobsites safer.</p>
     </div>
   </form>
 
@@ -471,12 +492,15 @@
   /* ---------------- Translations ---------------- */
   var I18N={
     en:{
+      more_legend:"More details", more_sum:"Add more details", more_hint:"Where exactly, who was there, what was done about it, and ideas to fix it.",
+      hzs_fall:"Fall / height", hzs_elec:"Electrical", hzs_veh:"Truck / trailer", hzs_tools:"Tools / equipment", hzs_ppe:"Safety gear (PPE)", hzs_house:"Slip / trip / mess",
+      hzs_chem:"Foam / fiberglass / chemicals", hzs_confined:"Attic / crawlspace", hzs_heat:"Heat / weather", hzs_ergo:"Lifting / strain", hzs_act:"Unsafe act", hzs_other:"Other",
       phone_q:"Questions? Call the office",
       title_h1:"Report a safety concern",
       title_p:"See a hazard, close call, injury, or unsafe work practice? Tell the safety team. Most reports take about a minute.",
       intro_eye:"RBH Safety", intro_h:"Speak up early. Help prevent the next incident.", intro_p:"Share what you saw. You can report anonymously, and you do not need to know every detail before sending a concern.",
       trust_fast_b:"Fast",trust_fast_s:"About 1 minute",trust_anon_b:"Anonymous",trust_anon_s:"Name is optional",trust_mobile_b:"Jobsite ready",trust_mobile_s:"Works on your phone",
-      where_note:"Enter the address where the incident or safety concern occurred. If you do not know the exact address, use the closest address or cross streets.", what_note:"Stick to the facts. A short, clear description is enough.", camera_btn:"Take a photo or add a file", review_h:"Quick review", review_p:"Make sure the main details look right. You can go back to change anything.", btn_back:"Back", btn_next:"Continue",
+      where_note:"The street address where it happened. Not sure? Use the closest address or cross streets.", opt:"optional", what_note:"Stick to the facts. A short, clear description is enough.", camera_btn:"Take a photo or add a file", review_h:"Quick review", review_p:"Make sure the main details look right. You can go back to change anything.", btn_back:"Back", btn_next:"Continue",
       emg_strong:"Emergency or injury right now?",
       emg_small:"Call 911 and your site supervisor immediately. This form is for reporting hazards and near misses — not active emergencies.",
       s1_legend:"What are you reporting?",
@@ -497,10 +521,10 @@
       s3_legend:"What happened",
       l_desc:"Describe what you saw",
       tip_desc:"Stick to the facts: what happened, what or who was involved, and how. Don’t include anyone’s medical details, Social Security number, or other private data.",
-      hint_desc:"Include the what, where, and how. The more detail, the faster the team can fix it.",
-      ph_desc:"Describe the hazard, close call, or behavior…",
+      hint_desc:"Say what happened, where, and how. Tip: tap the microphone on your keyboard to talk instead of typing.",
+      ph_desc:"Example: The attic ladder slipped on loose scraps. Nobody fell, but it was close.",
       err_desc:"Please tell us what happened.",
-      l_haz:"Type of hazard",
+      l_haz:"What kind of hazard?",
       tip_haz:"Best guess is fine — it helps the team route and track the report. Choose “Other” if nothing fits.",
       ph_haz_sel:"Select a hazard type…",
       haz_fall:"Fall / working at height", haz_elec:"Electrical",
@@ -552,15 +576,18 @@
       inj_no:"No — near miss / hazard only",
       inj_yes:"Yes — someone was hurt",
       inj_warn:"Someone was hurt. Tell your supervisor now, and call 911 for an emergency. Continue this report to document what happened.",
-      legal_note:"RBH does not retaliate against anyone who reports a safety concern in good faith (California Labor Code §6310). This information is used only to investigate and improve job-site safety."
+      legal_note:"You will not get in trouble for reporting a safety concern in good faith (California Labor Code §6310). Reports are used only to make jobsites safer."
     },
     es:{
+      more_legend:"Más detalles", more_sum:"Agregar más detalles", more_hint:"Dónde exactamente, quién estaba, qué se hizo y sus ideas para arreglarlo.",
+      hzs_fall:"Caída / altura", hzs_elec:"Eléctrico", hzs_veh:"Camión / remolque", hzs_tools:"Herramientas / equipo", hzs_ppe:"Equipo de protección (EPP)", hzs_house:"Resbalón / tropiezo / desorden",
+      hzs_chem:"Espuma / fibra de vidrio / químicos", hzs_confined:"Ático / entrepiso", hzs_heat:"Calor / clima", hzs_ergo:"Levantar / esfuerzo", hzs_act:"Acto inseguro", hzs_other:"Otro",
       phone_q:"¿Preguntas? Llame a la oficina",
       title_h1:"Reporte una inquietud de seguridad",
       title_p:"¿Vio un peligro, casi accidente, lesión o práctica insegura? Avise al equipo de seguridad. La mayoría de los reportes toma alrededor de un minuto.",
       intro_eye:"Seguridad RBH", intro_h:"Hable pronto. Ayude a prevenir el próximo incidente.", intro_p:"Comparta lo que vio. Puede reportar de forma anónima y no necesita conocer todos los detalles antes de enviar una inquietud.",
       trust_fast_b:"Rápido",trust_fast_s:"Aproximadamente 1 minuto",trust_anon_b:"Anónimo",trust_anon_s:"El nombre es opcional",trust_mobile_b:"Listo para obra",trust_mobile_s:"Funciona en su teléfono",
-      where_note:"Ingrese la dirección donde ocurrió el incidente o problema de seguridad. Si no conoce la dirección exacta, use la dirección más cercana o las calles de cruce.", what_note:"Describa los hechos. Una explicación corta y clara es suficiente.", camera_btn:"Tomar foto o agregar archivo", review_h:"Revisión rápida", review_p:"Confirme que los datos principales estén correctos. Puede regresar para cambiar algo.", btn_back:"Atrás", btn_next:"Continuar",
+      where_note:"La dirección donde pasó. ¿No está seguro? Use la dirección más cercana o las calles de cruce.", opt:"opcional", what_note:"Describa los hechos. Una explicación corta y clara es suficiente.", camera_btn:"Tomar foto o agregar archivo", review_h:"Revisión rápida", review_p:"Confirme que los datos principales estén correctos. Puede regresar para cambiar algo.", btn_back:"Atrás", btn_next:"Continuar",
       emg_strong:"¿Emergencia o lesión en este momento?",
       emg_small:"Llame al 911 y a su supervisor de inmediato. Este formulario es para reportar peligros y casi accidentes, no emergencias activas.",
       s1_legend:"¿Qué desea reportar?",
@@ -581,10 +608,10 @@
       s3_legend:"Qué pasó",
       l_desc:"Describa lo que vio",
       tip_desc:"Apéguese a los hechos: qué pasó, qué o quién estuvo involucrado y cómo. No incluya datos médicos, número de Seguro Social ni información privada de nadie.",
-      hint_desc:"Incluya el qué, el dónde y el cómo. Entre más detalle, más rápido lo puede resolver el equipo.",
-      ph_desc:"Describa el peligro, el casi accidente o el comportamiento…",
+      hint_desc:"Diga qué pasó, dónde y cómo. Consejo: toque el micrófono del teclado para hablar en vez de escribir.",
+      ph_desc:"Ejemplo: La escalera del ático se resbaló sobre restos sueltos. Nadie se cayó, pero estuvo cerca.",
       err_desc:"Por favor díganos qué pasó.",
-      l_haz:"Tipo de peligro",
+      l_haz:"¿Qué tipo de peligro?",
       tip_haz:"Con su mejor estimación basta — ayuda al equipo a dirigir y dar seguimiento al reporte. Elija «Otro» si nada aplica.",
       ph_haz_sel:"Seleccione un tipo de peligro…",
       haz_fall:"Caída / trabajo en altura", haz_elec:"Eléctrico",
@@ -636,7 +663,7 @@
       inj_no:"No — solo casi accidente / peligro",
       inj_yes:"Sí — alguien se lastimó",
       inj_warn:"Alguien se lastimó. Avise a su supervisor ahora y llame al 911 si es una emergencia. Continúe este reporte para documentar lo ocurrido.",
-      legal_note:"RBH no toma represalias contra quien reporte un problema de seguridad de buena fe (Código Laboral de California §6310). Esta información se usa únicamente para investigar y mejorar la seguridad en la obra."
+      legal_note:"Nadie tendrá problemas por reportar de buena fe un problema de seguridad (Código Laboral de California §6310). Los reportes se usan solo para hacer las obras más seguras."
     }
   };
 
@@ -868,6 +895,15 @@
   /* ---------------- Init: auto-detect Spanish ---------------- */
   var pref=(navigator.language||navigator.userLanguage||'en').toLowerCase();
   setLang(pref.indexOf('es')===0 ? 'es' : 'en'); prefillAddressFromUrl();
+})();
+</script>
+<script>
+/* Hazard picture tiles: copy the chosen tile into the hidden #hazard field the report already sends. */
+(function(){
+  var f=document.getElementById('reportForm'), h=document.getElementById('hazard');
+  if(!f||!h) return;
+  f.addEventListener('change',function(e){ if(e.target&&e.target.name==='hazardPick') h.value=e.target.value; });
+  f.addEventListener('reset',function(){ h.value=''; var d=f.querySelector('.more-details'); if(d) d.open=false; });
 })();
 </script>
 </body>

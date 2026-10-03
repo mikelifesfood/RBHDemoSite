@@ -329,6 +329,18 @@
   .incident-body .d-rows{display:grid;grid-template-columns:1fr 1fr;gap:0 28px}
   .incident-body .d-row{grid-template-columns:140px 1fr}
   .detail-actions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+  .more-menu{position:relative}
+  .more-menu:not(:has(button:not([hidden]))){display:none}
+  .more-menu summary{list-style:none;display:inline-flex;align-items:center;gap:8px;background:var(--paper);color:var(--ink);border:1px solid var(--line-strong);border-radius:var(--r);font-weight:650;font-size:13.5px;padding:9px 14px;min-height:40px;cursor:pointer;user-select:none}
+  .more-menu summary::-webkit-details-marker{display:none}
+  .more-menu summary::after{content:"";width:7px;height:7px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg) translateY(-2px)}
+  .more-menu[open] summary{border-color:var(--ink)}
+  .more-menu summary:hover{border-color:var(--ink)}
+  .more-menu-list{position:absolute;right:0;bottom:calc(100% + 6px);z-index:30;min-width:220px;display:grid;padding:6px;background:var(--paper);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow-pop)}
+  .more-menu-list button{all:unset;box-sizing:border-box;display:block;width:100%;padding:10px 12px;border-radius:var(--r-sm);font-size:14px;font-weight:600;color:var(--ink);cursor:pointer}
+  .more-menu-list button:hover,.more-menu-list button:focus-visible{background:var(--canvas)}
+  .more-menu-list button.restart-workflow-btn{color:var(--brand)}
+  .more-menu-list button[hidden]{display:none}
   .d-rows{display:grid;gap:0}
   .d-row{display:grid;grid-template-columns:170px 1fr;gap:12px;padding:9px 0;border-bottom:1px solid var(--line)}
   .d-row:last-child{border-bottom:0}
@@ -929,7 +941,9 @@
     .record-support summary{padding:13px 14px;font-size:17px}
     .record-support-body{padding:0 14px 14px}
     .detail-actions{margin-top:10px!important;margin-bottom:0!important}
-    .detail-actions .pdf-btn,.detail-actions .restart-workflow-btn,.detail-actions .reopen-record-btn{width:100%;min-height:46px}
+    .detail-actions .pdf-btn{width:100%;min-height:46px}
+    .more-menu,.more-menu summary{width:100%;justify-content:center}
+    .more-menu-list{position:static;margin-top:6px;box-shadow:none}
     .tl-item{grid-template-columns:28px minmax(0,1fr);gap:8px}
     .tl-marker{width:26px;height:26px;font-size:10.5px}
     .timeline:before{left:13px}
@@ -1005,7 +1019,7 @@
         <button class="nav-item active" data-view="home" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>Home</button>
         <button class="nav-item" data-view="mywork" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="15" rx="2"/><path d="M8 5V3h8v2M3 10h18M9 14l2 2 4-4"/></svg>My Work<span class="nav-count" id="navMyWorkCount"></span></button>
         <button class="nav-item" data-view="records" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>Safety Inbox<span class="nav-count" id="navOpenCount"></span></button>
-        <button class="nav-item" data-view="actions" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Corrective Actions<span class="nav-count" id="navActionCount"></span></button>
+        <button class="nav-item" data-view="actions" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Fixes<span class="nav-count" id="navActionCount"></span></button>
         <button class="nav-item" data-view="metrics" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Analytics</button>
         <button class="nav-item" data-view="users" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 20a5.5 5.5 0 0 1 11 0"/><path d="M16 8.5a3 3 0 0 1 0 5.8M17.5 20a5.5 5.5 0 0 0-1.6-3.9"/></svg>Admin</button>
       </nav>
@@ -1049,7 +1063,7 @@
             <button class="action-card" id="homeOpen" type="button">
               <span class="ac-ic"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></span>
               <span class="ac-t" id="homeOpenTitle">Open My Work</span>
-              <span class="ac-d" id="homeOpenDesc">See the reports and corrective actions assigned to you.</span>
+              <span class="ac-d" id="homeOpenDesc">See the reports and fixes assigned to you.</span>
             </button>
             <button class="action-card alt" id="homeCreate" type="button">
               <span class="ac-ic"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></span>
@@ -1064,17 +1078,17 @@
         </section>
 
         <section class="view" id="view-mywork" hidden>
-          <div class="section-head"><div><h2>My Work</h2><p>Your assigned safety work in one place—what needs action, what is due, and what is waiting for review.</p></div><span class="muted small" id="myWorkCount"></span></div>
+          <div class="section-head"><div><h2>My Work</h2><p>Everything assigned to you: what to do next, what is due, and what is waiting for approval.</p></div><span class="muted small" id="myWorkCount"></span></div>
           <div class="mywork-banner"><div><h3 id="myWorkGreeting">Your work queue</h3><p id="myWorkBannerText">Only work assigned to your dashboard account is shown here.</p></div><span class="mw-role" id="myWorkRole">Supervisor</span></div>
           <div class="mywork-summary" id="myWorkSummary"></div>
           <div class="mywork-grid">
-            <div class="mywork-panel"><h3>My assignments</h3><p class="panel-sub">Investigations and corrective actions assigned directly to you.</p><div id="myWorkList" class="task-list"></div></div>
-            <div class="mywork-panel mywork-review" id="myWorkReviewPanel"><h3>Verification queue</h3><p class="panel-sub">Unassigned reviews and reviews assigned to you. Admins can see the full verification queue.</p><div id="myWorkReviewList" class="task-list"></div></div>
+            <div class="mywork-panel"><h3>Assigned to me</h3><p class="panel-sub">Cases and fixes that are yours to do.</p><div id="myWorkList" class="task-list"></div></div>
+            <div class="mywork-panel mywork-review" id="myWorkReviewPanel"><h3>Waiting for approval</h3><p class="panel-sub">Finished fixes for you, or for any Admin or Safety Manager, to approve.</p><div id="myWorkReviewList" class="task-list"></div></div>
           </div>
         </section>
 
         <section class="view" id="view-records" hidden>
-          <div class="section-head"><div><h2>Safety Inbox</h2><p>Review incoming reports, identify priority items, and move each report to the next action.</p></div></div>
+          <div class="section-head"><div><h2>Safety Inbox</h2><p>Every report that has come in. Open one to work on it.</p></div></div>
           <div class="toolbar">
             <div class="chips" id="chips"><button class="chip active" data-chip="all" type="button">All</button><button class="chip" data-chip="open" type="button">Open</button><button class="chip" data-chip="overdue" type="button">Overdue</button><button class="chip" data-chip="injuries" type="button">Injuries</button><button class="chip" data-chip="new" type="button">New</button></div>
             <input type="text" class="search" id="search" placeholder="Search reports…">
@@ -1084,10 +1098,10 @@
               <option value="new">New</option>
               <option value="under_review">Under review</option>
               <option value="assigned">Assigned</option>
-              <option value="corrective_action">Corrective action</option>
+              <option value="corrective_action">Fix in progress</option>
               <option value="closed">Closed</option>
               <option value="duplicate">Duplicate</option>
-              <option value="no_action">No action</option>
+              <option value="no_action">Closed — no fix needed</option>
             </select>
             <select id="sortBy"><option value="newest">Newest</option><option value="oldest">Oldest</option><option value="priority">Priority</option><option value="due">Due date</option></select>
             <button class="refresh" id="refresh" type="button">Refresh</button>
@@ -1100,14 +1114,14 @@
 
 
         <section class="view" id="view-actions" hidden>
-          <div class="section-head"><div><h2>Corrective Actions</h2><p>Track assigned fixes from action through verification and closure.</p></div><span class="muted small" id="actionCount"></span></div>
+          <div class="section-head"><div><h2>Fixes</h2><p>Every fix that is planned, being worked on, or waiting for approval.</p></div><span class="muted small" id="actionCount"></span></div>
           <div id="actionSummary" class="action-summary"></div>
           <div id="actionList" class="task-list"></div>
         </section>
 
         <section class="view" id="view-incident" hidden>
           <div class="incident-header">
-            <div class="incident-title"><div class="home-kicker">Incident workspace</div><h2 id="incidentTitle">Report</h2><p id="incidentMeta"></p></div>
+            <div class="incident-title"><div class="home-kicker">Safety report</div><h2 id="incidentTitle">Report</h2><p id="incidentMeta"></p></div>
             <button class="back-link" id="incidentBack" type="button">← Back to Safety Inbox</button>
           </div>
           <div class="incident-summary" id="incidentSummary"></div>
@@ -1130,8 +1144,8 @@
           <div class="admin-info"><h3>Role-based access</h3><p>Existing dashboard users retain administrative access after the Phase 2 migration. New users start as Read Only until an Admin assigns the appropriate role.</p></div>
           <div class="role-legend">
             <div class="role-card"><b>Admin</b><span>Full operational access plus user roles and account activation.</span></div>
-            <div class="role-card"><b>Safety Manager</b><span>Full incident, investigation, corrective-action, and verification access.</span></div>
-            <div class="role-card"><b>Supervisor</b><span>Can work investigations and corrective actions assigned to their account. Investigation ownership covers Steps 1–3; corrective-action ownership covers Step 4.</span></div>
+            <div class="role-card"><b>Safety Manager</b><span>Can do every step on every report, including approving fixes.</span></div>
+            <div class="role-card"><b>Supervisor</b><span>Can work on reports and fixes assigned to them: Steps 1–3 as case owner, Step 4 as the person doing the fix.</span></div>
             <div class="role-card"><b>Read Only</b><span>Can review reports, activity, and analytics without making changes.</span></div>
           </div>
           <div id="adminPermissionNote" class="permission-note"></div>
@@ -1215,7 +1229,7 @@
             <div class="field"><label for="profileDepartment">Department</label><input type="text" id="profileDepartment" maxlength="100" placeholder="Optional"></div>
             <div class="field"><label for="profileRole">App role</label><input type="text" id="profileRole" readonly aria-readonly="true"><div class="field-help">Only another Admin can change your access.</div></div>
             <div class="field profile-span-2"><label for="profileLanguage">Preferred report language</label><select id="profileLanguage"><option value="auto">Automatic — use my device</option><option value="en">English</option><option value="es">Español</option></select><div class="field-help">This controls the default language used when you read a report. The original submitted wording is always preserved.</div></div>
-            <label class="setup-check profile-span-2"><input type="checkbox" id="profileGuidance" checked><span><b>Show workflow guidance</b><br>Keep short helper text visible while reviewing and completing reports. Regulatory warnings and required-field messages always remain visible.</span></label>
+            <label class="setup-check profile-span-2"><input type="checkbox" id="profileGuidance" checked><span><b>Show helper tips</b><br>Keep short tips visible while you work on reports. Cal/OSHA warnings and required-field messages always show.</span></label>
           </div>
           <button class="profile-primary" id="profileSave" type="submit">Save Profile</button>
         </form>
@@ -1251,7 +1265,7 @@
         <div class="profile-card-section">
           <h4>Quick help</h4>
           <div class="profile-help-list">
-            <div><b>Can't edit a report?</b><span>Your app role and report assignment control which workflow actions are available.</span></div>
+            <div><b>Can't edit a report?</b><span>Your role and what is assigned to you decide which steps you can change.</span></div>
             <div><b>Need a different role?</b><span>For security, users cannot change their own role. Ask another RBH Safety Admin.</span></div>
             <div><b>Something looks wrong?</b><span>Use the feedback form above and include what screen you were on and what you expected to happen.</span></div>
           </div>
@@ -1312,18 +1326,18 @@
 <!-- ============ CLOSE WITHOUT CORRECTIVE ACTION MODAL ============ -->
 <div class="modal-backdrop" id="dispositionBackdrop">
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="dHeading">
-    <h3 id="dHeading">Close without corrective action</h3>
-    <p class="msub">Use this when the report was reviewed and no corrective action is needed.</p>
-    <div class="disposition-warning"><b>This report will leave the open work queues but remain in history.</b> The closure reason and your account will be saved with the report.</div>
+    <h3 id="dHeading">Close — no fix needed</h3>
+    <p class="msub">Use this when you have looked at the report and nothing needs to be fixed.</p>
+    <div class="disposition-warning"><b>The report leaves the open lists but stays in history.</b> Your reason and your name are saved with it.</div>
     <div class="login-err" id="dErr"></div>
     <div class="field"><label for="dReason">Closure reason</label><select id="dReason">
-      <option value="no_issue">No issue found</option>
-      <option value="informational">Informational only</option>
-      <option value="not_safety">Not safety-related</option>
+      <option value="no_issue">No problem found</option>
+      <option value="informational">Just for our information</option>
+      <option value="not_safety">Not a safety issue</option>
       <option value="duplicate">Duplicate report</option>
       <option value="other">Other</option>
     </select></div>
-    <div class="field"><label for="dNote">Closure note <span style="font-weight:400;color:var(--muted)">(optional unless Other)</span></label><textarea id="dNote" placeholder="Briefly explain why no corrective action is needed."></textarea></div>
+    <div class="field"><label for="dNote">Closure note <span style="font-weight:400;color:var(--muted)">(optional unless Other)</span></label><textarea id="dNote" placeholder="Say briefly why nothing needs to be fixed."></textarea></div>
     <div class="modal-actions">
       <button class="btn-secondary" id="dCancel" type="button">Cancel</button>
       <button class="btn-primary" id="dSave" type="button">Close report</button>
@@ -1334,28 +1348,28 @@
 <!-- ============ REOPEN RECORD MODAL ============ -->
 <div class="modal-backdrop" id="reopenBackdrop">
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="reopenHeading">
-    <h3 id="reopenHeading">Reopen record</h3>
-    <p class="msub">Return a resolved safety record to Step 1 — Review Report while preserving its complete history.</p>
-    <div class="restart-warning"><b>The prior closure and completed workflow stay in the permanent history.</b> Reopening starts a fresh active workflow at Step 1 so new information is reviewed before a new investigation or corrective action is chosen.</div>
+    <h3 id="reopenHeading">Reopen report</h3>
+    <p class="msub">Send a closed report back to Step 1 (Review). Its full history is kept.</p>
+    <div class="restart-warning"><b>Nothing is erased.</b> Reopening starts the steps again at Review so new information is looked at before a new cause or fix is chosen.</div>
     <ul class="restart-preserve">
-      <li>Original report, notes, original attachments, Cal/OSHA screening, and prior corrective-action evidence are preserved.</li>
-      <li>The previous resolved status, reopen reason, and prior workflow values remain documented in Activity.</li>
-      <li>The active root cause, action plan, assignment, due date, completion, and verification fields are reset.</li>
-      <li>Closed, no-action, and duplicate records all reopen at Step 1 — Review Report.</li>
+      <li>The original report, notes, photos, Cal/OSHA answer and earlier fix photos are kept.</li>
+      <li>The earlier closing, your reason for reopening and earlier answers stay in the activity history.</li>
+      <li>The cause, fix plan, assignments, due dates, completion and approval are cleared for the new round.</li>
+      <li>Every closed report reopens at Step 1 (Review).</li>
     </ul>
     <div class="login-err" id="reopenErr"></div>
     <div class="field"><label for="reopenReason">Reason for reopening</label><select id="reopenReason">
       <option value="">— Choose a reason —</option>
       <option value="new_information">Additional information received</option>
-      <option value="closed_in_error">Record closed in error / wrong record closed</option>
-      <option value="additional_corrective_work">Corrective action needs additional work</option>
-      <option value="continue_investigation">Investigation needs to continue</option>
+      <option value="closed_in_error">Closed by mistake / wrong report closed</option>
+      <option value="additional_corrective_work">The fix needs more work</option>
+      <option value="continue_investigation">We need to keep looking into the cause</option>
       <option value="other">Other</option>
     </select></div>
-    <div class="field"><label for="reopenNote">Explanation <span style="font-weight:400;color:var(--muted)">(required)</span></label><textarea id="reopenNote" maxlength="1200" placeholder="Briefly explain why this record is being reopened."></textarea></div>
+    <div class="field"><label for="reopenNote">Explanation <span style="font-weight:400;color:var(--muted)">(required)</span></label><textarea id="reopenNote" maxlength="1200" placeholder="Say briefly why this report is being reopened."></textarea></div>
     <div class="modal-actions">
       <button class="btn-secondary" id="reopenCancel" type="button">Cancel</button>
-      <button class="btn-primary" id="reopenSave" type="button">Reopen record</button>
+      <button class="btn-primary" id="reopenSave" type="button">Reopen report</button>
     </div>
   </div>
 </div>
@@ -1363,29 +1377,29 @@
 <!-- ============ RESTART WORKFLOW MODAL ============ -->
 <div class="modal-backdrop" id="restartBackdrop">
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="rHeading">
-    <h3 id="rHeading">Restart workflow</h3>
-    <p class="msub">Return the management workflow to Step 1 without erasing the permanent history.</p>
-    <div class="restart-warning"><b>This clears the current management work.</b> Root cause, corrective-action plan, control type, assignment, due date, priority, completion, and verification values will be reset. This action cannot be undone from the screen.</div>
+    <h3 id="rHeading">Start steps over</h3>
+    <p class="msub">Send this report back to Step 1 without erasing its history.</p>
+    <div class="restart-warning"><b>This clears the work done so far.</b> The cause, fix plan, type of fix, assignments, due dates, priority, completion and approval are reset. You cannot undo this.</div>
     <ul class="restart-preserve">
-      <li>Original employee report and original attachments stay unchanged.</li>
-      <li>Cal/OSHA screening and RBH awareness time are preserved.</li>
-      <li>Notes, activity history, and prior corrective-action evidence are preserved.</li>
-      <li>A server-side snapshot of the cleared workflow is retained.</li>
+      <li>The original report and photos stay the same.</li>
+      <li>The Cal/OSHA answer and the time RBH found out are kept.</li>
+      <li>Notes, activity history and earlier fix photos are kept.</li>
+      <li>A backup copy of the cleared work is saved.</li>
     </ul>
     <div class="login-err" id="rErr"></div>
-    <div class="field"><label for="rReason">Reason for restart</label><select id="rReason">
+    <div class="field"><label for="rReason">Why start over?</label><select id="rReason">
       <option value="">— Choose a reason —</option>
-      <option value="incorrect_investigation">Incorrect investigation path</option>
-      <option value="incorrect_action">Incorrect corrective action</option>
-      <option value="wrong_assignment">Wrong assignment</option>
+      <option value="incorrect_investigation">Wrong cause was chosen</option>
+      <option value="incorrect_action">Wrong fix was chosen</option>
+      <option value="wrong_assignment">Wrong person assigned</option>
       <option value="new_information">New information received</option>
-      <option value="incorrect_data">Incorrect data entered</option>
+      <option value="incorrect_data">Wrong information entered</option>
       <option value="other">Other</option>
     </select></div>
-    <div class="field"><label for="rNote">Explanation <span style="font-weight:400;color:var(--muted)">(required)</span></label><textarea id="rNote" maxlength="1200" placeholder="Briefly explain why the workflow needs to restart."></textarea></div>
+    <div class="field"><label for="rNote">Explanation <span style="font-weight:400;color:var(--muted)">(required)</span></label><textarea id="rNote" maxlength="1200" placeholder="Say briefly why the steps need to start over."></textarea></div>
     <div class="modal-actions">
       <button class="btn-secondary" id="rCancel" type="button">Cancel</button>
-      <button class="btn-primary" id="rSave" type="button">Restart workflow</button>
+      <button class="btn-primary" id="rSave" type="button">Start steps over</button>
     </div>
   </div>
 </div>
@@ -1399,8 +1413,8 @@
   var sb=window.supabase.createClient(SUPA_URL, SUPA_KEY);
 
   var STATUS={ new:{l:"New",c:"st-new"}, under_review:{l:"Under review",c:"st-review"},
-    assigned:{l:"Assigned",c:"st-assigned"}, corrective_action:{l:"Corrective action",c:"st-corrective"},
-    closed:{l:"Closed",c:"st-closed"}, duplicate:{l:"Duplicate",c:"st-muted"}, no_action:{l:"Closed — no action",c:"st-muted"} };
+    assigned:{l:"Assigned",c:"st-assigned"}, corrective_action:{l:"Fix in progress",c:"st-corrective"},
+    closed:{l:"Closed",c:"st-closed"}, duplicate:{l:"Duplicate",c:"st-muted"}, no_action:{l:"Closed — no fix needed",c:"st-muted"} };
   var STATUS_KEYS=["new","under_review","assigned","corrective_action","closed","duplicate","no_action"];
 
   function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];}); }
@@ -1820,13 +1834,13 @@
   function notificationResolutionLabel(v){
     var map={
       review_started:"Review started",
-      investigator_reassigned:"Investigator reassigned",
-      investigation_handed_off:"Investigation handed off",
-      action_owner_reassigned:"Action owner reassigned",
-      verification_owner_changed:"Verification owner changed",
-      action_submitted:"Action submitted",
+      investigator_reassigned:"Case owner changed",
+      investigation_handed_off:"Case handed off",
+      action_owner_reassigned:"Fix reassigned",
+      verification_owner_changed:"Approver changed",
+      action_submitted:"Fix sent for approval",
       changes_resubmitted:"Changes resubmitted",
-      verification_completed_or_returned:"Verification completed or returned",
+      verification_completed_or_returned:"Fix approved or sent back",
       report_resolved:"Report resolved"
     };
     return map[String(v||"")]||"";
@@ -2041,7 +2055,7 @@
     var wrap=document.createElement("div");
     wrap.className="card"+(resolved?" resolved":"")+inboxStateClass;
     wrap.setAttribute('data-report-id',r.id);
-    var meta=[fmtDate(r.created_at),(r.reporter_name||"Anonymous")]; if(r.hazard_category) meta.push(r.hazard_category); if(investigatorName(r)) meta.push("Investigator: "+investigatorName(r)); if(assigneeName(r)) meta.push("Action owner: "+assigneeName(r)); if(verifierName(r)) meta.push("Verifier: "+verifierName(r)); if(r.due_date) meta.push((isOverdue(r)?"Overdue \u2014 due ":"Due ")+shortDate(r.due_date));
+    var meta=[fmtDate(r.created_at),(r.reporter_name||"Anonymous")]; if(r.hazard_category) meta.push(r.hazard_category); if(investigatorName(r)) meta.push("Investigator: "+investigatorName(r)); if(assigneeName(r)) meta.push("Fix by: "+assigneeName(r)); if(verifierName(r)) meta.push("Approver: "+verifierName(r)); if(r.due_date) meta.push((isOverdue(r)?"Overdue \u2014 due ":"Due ")+shortDate(r.due_date));
     var pri=r.priority?('<span class="badge pr-'+r.priority+'" title="Priority">'+({low:"Low priority",medium:"Medium priority",high:"High priority"}[r.priority]||r.priority)+'</span>'):"";
     wrap.innerHTML=
       '<button class="card-head" type="button">'+
@@ -2067,7 +2081,7 @@
   }
   function investigatorOptions(selected){ return assignmentOptions(selected); }
   function verifierOptions(selected){
-    var opts=['<option value="">Unassigned — any Admin / Safety Manager can verify</option>'];
+    var opts=['<option value="">Anyone — any Admin or Safety Manager can approve</option>'];
     allProfiles.filter(function(p){ return p.is_active!==false && (p.app_role==="admin"||p.app_role==="safety_manager"); })
       .sort(function(a,b){ return profileName(a).localeCompare(profileName(b)); })
       .forEach(function(p){
@@ -2097,16 +2111,16 @@
     var chipClass=st?st:"unset";
     var chipText=caloshaScreenLabel(st);
     return '<div class="reg-review" data-regulatory-review>'+
-      '<div class="reg-review-head"><div><b>Cal/OSHA serious-event screening</b><p>Management screening only. This does not submit a report to Cal/OSHA or replace a legal determination.</p></div><span class="reg-chip reg-chip-'+esc(chipClass)+'" data-reg-chip>'+esc(chipText)+'</span></div>'+
+      '<div class="reg-review-head"><div><b>Does this need to be reported to Cal/OSHA?</b><p>For managers only. Answering here does not send anything to Cal/OSHA and is not a legal decision.</p></div><span class="reg-chip reg-chip-'+esc(chipClass)+'" data-reg-chip>'+esc(chipText)+'</span></div>'+
       '<div class="reg-review-grid">'+
-        '<label class="inv-l">Screening result<select class="reg-status"><option value="">— Select result —</option><option value="pending"'+(st==="pending"?' selected':'')+'>Pending — more information needed</option><option value="yes"'+(st==="yes"?' selected':'')+'>Yes — possible §342 serious event; escalate now</option><option value="no"'+(st==="no"?' selected':'')+'>No — serious-event criteria not currently identified</option></select></label>'+
-        '<label class="inv-l">When RBH first knew of the potentially serious outcome<input type="datetime-local" class="reg-awareness" value="'+esc(localDateTimeValue(r.calosha_awareness_at))+'"></label>'+
+        '<label class="inv-l">Your answer<select class="reg-status"><option value="">— Choose an answer —</option><option value="pending"'+(st==="pending"?' selected':'')+'>Not sure yet — need more information</option><option value="yes"'+(st==="yes"?' selected':'')+'>Yes — may be a serious event (§342); get management involved now</option><option value="no"'+(st==="no"?' selected':'')+'>No — not a serious event based on what we know now</option></select></label>'+
+        '<label class="inv-l">When RBH first found out it might be serious<input type="datetime-local" class="reg-awareness" value="'+esc(localDateTimeValue(r.calosha_awareness_at))+'"></label>'+
       '</div>'+
-      '<div class="reg-review-help">For a Yes or Pending result, record the time RBH first knew, or with diligent inquiry would have known, of the potentially serious outcome. Do not delay required reporting while completing this screen.</div>'+
+      '<div class="reg-review-help">If Yes or Not sure, enter when RBH first found out (or should have found out) it might be serious. Never wait on this screen to make a required report.</div>'+
       '<div class="reg-review-state" data-reg-state></div>'+
       '<div class="reg-elapsed" data-reg-elapsed role="status" aria-live="polite"></div>'+
       '<div class="reg-required" data-reg-required></div>'+
-      '<div class="reg-review-actions"><button class="reg-save" type="button">Save regulatory review</button><span class="reg-saved" hidden>Saved ✓</span><a class="calosha-link" href="https://www.dir.ca.gov/dosh/report-accident-or-injury.html" target="_blank" rel="noopener">Official Cal/OSHA reporting instructions ↗</a></div>'+
+      '<div class="reg-review-actions"><button class="reg-save" type="button">Save Cal/OSHA answer</button><span class="reg-saved" hidden>Saved ✓</span><a class="calosha-link" href="https://www.dir.ca.gov/dosh/report-accident-or-injury.html" target="_blank" rel="noopener">Official Cal/OSHA reporting instructions ↗</a></div>'+
     '</div>';
   }
   function elapsedAwarenessText(ms){
@@ -2145,7 +2159,7 @@
     if(viewingStep===1 && currentStep>1 && !isResolvedReport(r)){
       navAction='<button type="button" class="reg-return-current" data-reg-return-step="'+currentStep+'">Return to '+esc(wizardShortTitle(currentStep))+'</button>';
     }else if(viewingStep!==1){
-      navAction='<button type="button" data-reg-review-jump>Review screening</button>';
+      navAction='<button type="button" data-reg-review-jump>Review Cal/OSHA answer</button>';
     }
     return '<div class="reg-persistent '+esc(cls)+'" data-reg-persistent role="status" aria-live="polite">'+
       '<div class="reg-persistent-copy"><strong>'+esc(title)+'</strong><span>'+esc(timing)+' · '+esc(message)+'</span></div>'+
@@ -2194,7 +2208,7 @@
       state.className="reg-review-state"; state.textContent="";
       if(v==="yes"){ state.classList.add("show","yes"); state.textContent="Escalate immediately. This application does not report the event to Cal/OSHA."; }
       else if(v==="pending"){ state.classList.add("show","pending"); state.textContent="Follow-up is still required. If serious-event criteria may be met, do not wait on this application before escalating."; }
-      else if(v==="no"){ state.classList.add("show","no"); state.textContent="Screening recorded as criteria not currently identified. Reassess if new facts become available."; }
+      else if(v==="no"){ state.classList.add("show","no"); state.textContent="Saved: not a serious event based on what we know now. Check again if new facts come in."; }
     }
     refreshRegulatoryElapsed(card);
   }
@@ -2222,72 +2236,72 @@
     var guidanceOn=workflowGuidanceEnabled();
     return '<div class="wizard-shell'+(guidanceOn?'':' guidance-hidden')+'">'+
       '<div class="record-progress" data-record-progress></div>'+
-      '<div class="guidance-control"><label class="guidance-toggle"><input type="checkbox" data-guidance-toggle'+(guidanceOn?' checked':'')+'><span>Show guidance</span></label></div>'+
+      '<div class="guidance-control"><label class="guidance-toggle"><input type="checkbox" data-guidance-toggle'+(guidanceOn?' checked':'')+'><span>Show tips</span></label></div>'+
       '<div data-resolved-banner></div>'+
       '<div data-urgent-triage>'+urgentTriageHtml(r)+'</div>'+
 
       '<section class="wizard-panel" data-wizard-step="1" hidden>'+
-        '<div class="wizard-step-head"><span class="wizard-step-badge">1</span><div class="wizard-step-copy"><h3>Review the report</h3><p>Confirm what was submitted and decide whether the report needs further action.</p></div></div>'+
-        '<span class="field-guidance">Review the submission and attachments below. Continue when the report needs investigation, or use the no-action option when no corrective work is required.</span>'+
+        '<div class="wizard-step-head"><span class="wizard-step-badge">1</span><div class="wizard-step-copy"><h3>Review the report</h3><p>Read what was sent in and decide if anything needs fixing.</p></div></div>'+
+        '<span class="field-guidance">Read the report and photos below. Continue if something needs fixing. If nothing does, use Close — no fix needed.</span>'+
         '<div class="d-rows">'+rows.join("")+'</div>'+
         '<div class="d-atts" data-atts></div>'+
         '<div class="investigator-card" data-investigator-card>'+
-          '<div class="investigator-head"><div><b>Case owner / investigator</b><p>Tracks who is responsible for carrying the investigation forward. The corrective action can be assigned to a different person in Step 3.</p></div><span class="investigator-chip'+(r.investigator_user_id?' assigned':'')+'" data-investigator-chip>'+(r.investigator_user_id?'Assigned':'Unassigned')+'</span></div>'+
+          '<div class="investigator-head"><div><b>Case owner</b><p>The person in charge of this report through Step 3. The fix itself can go to someone else in Step 3.</p></div><span class="investigator-chip'+(r.investigator_user_id?' assigned':'')+'" data-investigator-chip>'+(r.investigator_user_id?'Assigned':'Unassigned')+'</span></div>'+
           '<div class="investigator-controls">'+
-            '<label class="inv-l">Assigned investigator<select class="inv-investigator">'+investigatorOptions(r.investigator_user_id)+'</select></label>'+
+            '<label class="inv-l">Case owner<select class="inv-investigator">'+investigatorOptions(r.investigator_user_id)+'</select></label>'+
             '<button class="wizard-save investigator-self" type="button">Assign to me</button>'+
             '<button class="wizard-primary investigator-save" type="button">Save assignment</button>'+
           '</div>'+
-          '<span class="field-guidance compact">Active Admin, Safety Manager, and Supervisor accounts are available. Read Only accounts are excluded.</span>'+
-          '<div class="investigator-permission" data-investigator-permission hidden>Only an Admin or Safety Manager can assign or reassign the investigator.</div>'+
+          '<span class="field-guidance compact">Pick any Admin, Safety Manager or Supervisor.</span>'+
+          '<div class="investigator-permission" data-investigator-permission hidden>Only an Admin or Safety Manager can choose or change the case owner.</div>'+
           '<span class="investigator-saved" hidden>Assignment saved ✓</span>'+
         '</div>'+
         regulatoryReviewHtml(r)+
-        '<div class="noaction-box" data-noaction-box><div class="noaction-copy"><b>Nothing to correct?</b><span>Close this report with a documented reason instead of creating unnecessary corrective-action work.</span></div><button class="noaction-btn" type="button" data-noaction-btn>Close — no action required</button></div>'+
-        '<div class="wizard-footer"><div class="wizard-footer-copy">Complete review moves the report to Investigation.</div><div class="wizard-footer-actions"><button class="wizard-primary" data-step-complete="1" type="button">Complete review →</button></div></div>'+
-        '<div class="gate-msg" data-role-gate>This account can view this incident but does not have permission to update it.</div>'+
+        '<div class="noaction-box" data-noaction-box><div class="noaction-copy"><b>Nothing to fix?</b><span>Close this report and pick a reason. No fix plan needed.</span></div><button class="noaction-btn" type="button" data-noaction-btn>Close — no fix needed</button></div>'+
+        '<div class="wizard-footer"><div class="wizard-footer-copy">Finish review moves the report to Find the cause.</div><div class="wizard-footer-actions"><button class="wizard-primary" data-step-complete="1" type="button">Finish review →</button></div></div>'+
+        '<div class="gate-msg" data-role-gate>You can look at this report, but your role cannot change it.</div>'+
       '</section>'+
 
       '<section class="wizard-panel" data-wizard-step="2" hidden>'+
-        '<div class="wizard-step-head"><span class="wizard-step-badge">2</span><div class="wizard-step-copy"><h3>Investigation</h3><p>Document why the issue happened or what underlying condition allowed it to happen.</p></div></div>'+
-        '<label class="inv-l">Root cause<textarea class="inv-root" placeholder="What caused or allowed this issue to happen?"></textarea><span class="field-guidance">Describe the underlying condition or reason, not only what happened. Keep it factual and specific.</span></label><div class="translation-preview" data-translation-field="root_cause" hidden></div>'+
-        '<div class="wizard-required" data-required="2">Root cause is required before this step can be completed.</div>'+
-        '<div class="wizard-footer"><div class="wizard-footer-copy">Save and close keeps a draft. Complete investigation advances the workflow.</div><div class="wizard-footer-actions"><button class="wizard-save root-save" data-step-save="2" type="button">Save and close</button><span class="root-saved section-saved" hidden>Saved ✓</span><button class="wizard-primary" data-step-complete="2" type="button">Complete investigation →</button></div></div>'+
+        '<div class="wizard-step-head"><span class="wizard-step-badge">2</span><div class="wizard-step-copy"><h3>Find the cause</h3><p>Write down why this happened, or what allowed it to happen.</p></div></div>'+
+        '<label class="inv-l">Why did it happen?<textarea class="inv-root" placeholder="Example: The ladder was set on loose scraps and nobody checked it before climbing."></textarea><span class="field-guidance">Go one step past what happened: what condition or habit let it happen? Stick to facts, not blame.</span></label><div class="translation-preview" data-translation-field="root_cause" hidden></div>'+
+        '<div class="wizard-required" data-required="2">Fill in why it happened before finishing this step.</div>'+
+        '<div class="wizard-footer"><div class="wizard-footer-copy">Save and close keeps your work for later. Save cause &amp; continue moves to the next step.</div><div class="wizard-footer-actions"><button class="wizard-save root-save" data-step-save="2" type="button">Save and close</button><span class="root-saved section-saved" hidden>Saved ✓</span><button class="wizard-primary" data-step-complete="2" type="button">Save cause & continue →</button></div></div>'+
       '</section>'+
 
       '<section class="wizard-panel" data-wizard-step="3" hidden>'+
-        '<div class="wizard-step-head"><span class="wizard-step-badge">3</span><div class="wizard-step-copy"><h3>Corrective action plan</h3><p>Create one or more corrective actions. Each action can have its own control type, owner, due date, priority, and status.</p></div></div>'+
-        '<div class="multi-action-toolbar"><div class="multi-action-summary"><b>Corrective actions</b><span>Add a separate action when different work, owners, or deadlines are needed.</span></div></div>'+
-        '<div class="multi-action-list" data-corrective-action-plan><div class="multi-action-loading">Loading corrective-action plan…</div></div>'+
-        '<div class="multi-action-add-wrap"><button class="multi-action-add" type="button" data-add-corrective-action>+ Add another corrective action</button></div>'+
+        '<div class="wizard-step-head"><span class="wizard-step-badge">3</span><div class="wizard-step-copy"><h3>Plan the fix</h3><p>Say what will be fixed, who will do it and by when. Add more than one fix if different people or dates are needed.</p></div></div>'+
+        '<div class="multi-action-toolbar"><div class="multi-action-summary"><b>Fixes</b><span>Add a separate fix when different work, people or due dates are needed.</span></div></div>'+
+        '<div class="multi-action-list" data-corrective-action-plan><div class="multi-action-loading">Loading the fix plan…</div></div>'+
+        '<div class="multi-action-add-wrap"><button class="multi-action-add" type="button" data-add-corrective-action>+ Add another fix</button></div>'+
         '<div class="wizard-required" data-required="3"></div>'+
-        '<div class="wizard-footer"><div class="wizard-footer-copy">Save and close keeps the plan as a draft. Save &amp; assign actions activates every current action and notifies each assigned owner.</div><div class="wizard-footer-actions"><button class="wizard-save action-plan-save" data-step-save="3" type="button">Save and close</button><span class="action-plan-saved section-saved" hidden>Saved ✓</span><button class="wizard-primary" data-step-complete="3" type="button">Save &amp; assign actions →</button></div></div>'+
+        '<div class="wizard-footer"><div class="wizard-footer-copy">Save and close keeps the plan for later. Save plan &amp; assign sends each fix to the person doing it.</div><div class="wizard-footer-actions"><button class="wizard-save action-plan-save" data-step-save="3" type="button">Save and close</button><span class="action-plan-saved section-saved" hidden>Saved ✓</span><button class="wizard-primary" data-step-complete="3" type="button">Save plan &amp; assign →</button></div></div>'+
       '</section>'+
 
       '<section class="wizard-panel" data-wizard-step="4" hidden>'+
-        '<div class="wizard-step-head"><span class="wizard-step-badge">4</span><div class="wizard-step-copy"><h3>Complete corrective action</h3><p>Document the completed work and attach supporting evidence when helpful.</p></div></div>'+
+        '<div class="wizard-step-head"><span class="wizard-step-badge">4</span><div class="wizard-step-copy"><h3>Do the fix</h3><p>Say what was done and add a photo of the finished fix if you can.</p></div></div>'+
         '<div class="multi-action-overview" data-corrective-action-overview></div>'+
         '<div class="multi-action-completion-list" data-multi-action-completion></div>'+
         '<div class="action-workflow" data-action-completion></div>'+
       '</section>'+
 
       '<section class="wizard-panel" data-wizard-step="5" hidden>'+
-        '<div class="wizard-step-head"><span class="wizard-step-badge">5</span><div class="wizard-step-copy"><h3>Verify corrective action</h3><p>Review the completed work and evidence, then approve it or request changes.</p></div></div>'+
+        '<div class="wizard-step-head"><span class="wizard-step-badge">5</span><div class="wizard-step-copy"><h3>Check the fix</h3><p>Look at what was done and the photos, then approve it or send it back.</p></div></div>'+
         '<div class="multi-action-overview" data-corrective-action-overview></div>'+
         '<div class="multi-action-verification-list" data-multi-action-verification-stage hidden></div>'+
         '<div class="action-workflow" data-action-verification></div>'+
       '</section>'+
 
       '<section class="wizard-panel" data-wizard-step="6" hidden>'+
-        '<div class="wizard-step-head"><span class="wizard-step-badge">6</span><div class="wizard-step-copy"><h3>Close record</h3><p>Perform one final check and close the incident when every required step is complete.</p></div></div>'+
+        '<div class="wizard-step-head"><span class="wizard-step-badge">6</span><div class="wizard-step-copy"><h3>Close the report</h3><p>Check the list below, then close the report.</p></div></div>'+
         '<div data-close-step></div>'+
       '</section>'+
 
       '<details class="record-support" open><summary>Notes &amp; activity history</summary><div class="record-support-body"><div class="support-grid">'+
         '<div class="d-section"><div class="d-sec-title-row"><span class="d-sec-title">Notes</span><button class="add-note" type="button">+ Add Note</button></div><div class="notes" data-notes></div></div>'+
-        '<div class="d-section"><div class="d-sec-title">Activity timeline</div><p class="step-section-note">A readable history of submissions, updates, evidence, verification, and closure.</p><div class="audit" data-audit></div></div>'+
+        '<div class="d-section"><div class="d-sec-title">Activity timeline</div><p class="step-section-note">Everything that has happened on this report, newest first.</p><div class="audit" data-audit></div></div>'+
       '</div></div></details>'+
-      '<div class="detail-actions"><button class="reopen-record-btn" type="button" hidden>Reopen record</button><button class="restart-workflow-btn" type="button" hidden>Restart workflow</button><span class="pdf-language-wrap">PDF language <select class="pdf-language-select"><option value="viewer">My reading language</option><option value="original">Original record</option><option value="en">English</option><option value="es">Español</option></select></span><button class="pdf-btn" type="button">Download PDF</button></div>'+
+      '<div class="detail-actions"><details class="more-menu"><summary>More options</summary><div class="more-menu-list"><button class="reopen-record-btn" type="button" hidden>Reopen report</button><button class="restart-workflow-btn" type="button" hidden>Start steps over</button></div></details><span class="pdf-language-wrap">PDF language <select class="pdf-language-select"><option value="viewer">My reading language</option><option value="original">Original record</option><option value="en">English</option><option value="es">Español</option></select></span><button class="pdf-btn" type="button">Download PDF</button></div>'+
     '</div>';
   }
 
@@ -2318,24 +2332,24 @@
     var disposed=r && (r.status==="no_action" || r.status==="duplicate");
     if(disposed){
       return {complete:true,steps:[
-        {n:1,title:"Review report",state:"done",detail:"Reviewed and disposition recorded."},
-        {n:2,title:"Document root cause",state:"na",detail:"Not required for this closure."},
-        {n:3,title:"Plan corrective action",state:"na",detail:"Not required for this closure."},
-        {n:4,title:"Complete action",state:"na",detail:"Not required for this closure."},
-        {n:5,title:"Verify action",state:"na",detail:"Not required for this closure."},
-        {n:6,title:"Close record",state:"done",detail:"Record closed without corrective action."}
+        {n:1,title:"Review report",state:"done",detail:"Reviewed and closing reason saved."},
+        {n:2,title:"Write down why it happened",state:"na",detail:"Not required for this closure."},
+        {n:3,title:"Plan the fix",state:"na",detail:"Not required for this closure."},
+        {n:4,title:"Do the fix",state:"na",detail:"Not required for this closure."},
+        {n:5,title:"Check the fix",state:"na",detail:"Not required for this closure."},
+        {n:6,title:"Close the report",state:"done",detail:"Closed — no fix needed."}
       ]};
     }
     var reopenStep=activeReopenStep(r);
     if(reopenStep){
-      var reopenTitles=["Review report","Document root cause","Plan corrective action","Complete action","Verify action","Close record"];
+      var reopenTitles=["Review report","Write down why it happened","Plan the fix","Do the fix","Check the fix","Close record"];
       var reopenDetails=[
-        "Review the reopened report and confirm the carried-forward information still applies.",
-        hasWorkflowValue(r.root_cause)?"Previous root cause carried forward — confirm or update it.":"Enter the root cause of the issue.",
-        (hasWorkflowValue(r.corrective_action)&&hasWorkflowValue(r.assigned_user_id))?"Previous action plan carried forward — confirm or update the action, control type, owner, due date, and priority.":"Complete the corrective-action plan.",
-        hasWorkflowValue(r.action_completion_note)?"Previous completion note carried forward — update it as needed and submit the current work for verification.":"Document what was completed and submit it for verification.",
-        r.action_status==="awaiting_verification"?"Admin or Safety Manager must verify the current reopened-cycle work.":"Verification is required again for the reopened record.",
-        "After the reopened cycle is verified, close the record again."
+        "Read the reopened report and confirm the earlier answers still apply.",
+        hasWorkflowValue(r.root_cause)?"The earlier cause was kept — confirm or update it.":"Write down why it happened.",
+        (hasWorkflowValue(r.corrective_action)&&hasWorkflowValue(r.assigned_user_id))?"The earlier fix plan was kept — confirm or update the fix, type of fix, person, due date and priority.":"Fill in the fix plan.",
+        hasWorkflowValue(r.action_completion_note)?"The earlier completion note was kept — update it and send the work for approval.":"Say what was done and send it for approval.",
+        r.action_status==="awaiting_verification"?"An Admin or Safety Manager must approve the new work.":"The fix must be approved again because the report was reopened.",
+        "After the fix is approved, close the report again."
       ];
       var reopenSteps=reopenTitles.map(function(title,i){var n=i+1;return {n:n,title:title,state:n<reopenStep?"done":(n===reopenStep?"current":"needed"),detail:reopenDetails[i]};});
       return {complete:false,steps:reopenSteps,current:reopenStep-1,reopened:true};
@@ -2351,7 +2365,7 @@
       step4=childSummary.open===0;
       step5=childSummary.verified===childSummary.total;
     } else {
-      if(!hasWorkflowValue(r.corrective_action)) missing3.push("corrective action");
+      if(!hasWorkflowValue(r.corrective_action)) missing3.push("the fix");
       if(!owner) missing3.push("owner");
       if(!hasWorkflowValue(r.due_date)) missing3.push("due date");
       if(!hasWorkflowValue(r.priority)) missing3.push("priority");
@@ -2362,19 +2376,19 @@
     var step6=r.status==="closed";
     var done=[step1,step2,step3,step4,step5,step6];
     var current=-1; for(var i=0;i<done.length;i++){ if(!done[i]){ current=i; break; } }
-    var changeMsg=r.action_status==="changes_requested"?"Reviewer requested changes. Update the completed work and resubmit.":"Document what was completed and submit it for verification.";
-    var step3Detail=childSummary?(childSummary.total+" corrective action"+(childSummary.total===1?"":"s")+" assigned."): (step3?"Action, assigned user, due date, and priority are set.":("Still needed: "+missing3.join(", ")+"."));
-    var step4Detail=childSummary?(step4?("All "+childSummary.total+" corrective actions have been submitted for verification."):(childSummary.submitted+" of "+childSummary.total+" corrective actions submitted; "+childSummary.open+" still need completion.")):(step4?"Completed work was submitted for review.":changeMsg);
-    var step5Detail=childSummary?(step5?("All "+childSummary.total+" corrective actions are verified."):(childSummary.verified+" of "+childSummary.total+" corrective actions verified.")):(step5?"Corrective action was verified.":"Admin or Safety Manager must verify the completed work.");
+    var changeMsg=r.action_status==="changes_requested"?"Reviewer requested changes. Update the work and send it again.":"Say what was done and send it for approval.";
+    var step3Detail=childSummary?(childSummary.total+" fix"+(childSummary.total===1?"":"es")+" assigned."): (step3?"Fix, person, due date and priority are set.":("Still needed: "+missing3.join(", ")+"."));
+    var step4Detail=childSummary?(step4?("All "+childSummary.total+" fixes have been sent for approval."):(childSummary.submitted+" of "+childSummary.total+" fixes sent for approval; "+childSummary.open+" still need completion.")):(step4?"Completed work was submitted for review.":changeMsg);
+    var step5Detail=childSummary?(step5?("All "+childSummary.total+" fixes are approved."):(childSummary.verified+" of "+childSummary.total+" fixes approved.")):(step5?"Fix approved.":"An Admin or Safety Manager must approve the finished work.");
     var details=[
       step1?"Report acknowledged and moved out of New.":"Review the report and change status to Under review.",
-      step2?"Root cause documented.":"Enter the root cause of the issue.",
+      step2?"Cause written down.":"Write down why it happened.",
       step3Detail,
       step4Detail,
       step5Detail,
-      step6?"Record is closed.":"After verification, set Report Status to Closed."
+      step6?"Report is closed.":"After approval, close the report."
     ];
-    var titles=["Review report","Document root cause","Plan corrective action","Complete action","Verify action","Close record"];
+    var titles=["Review report","Write down why it happened","Plan the fix","Do the fix","Check the fix","Close record"];
     var steps=titles.map(function(title,i){ return {n:i+1,title:title,state:done[i]?"done":(i===current?"current":"needed"),detail:details[i]}; });
     return {complete:current===-1,steps:steps,current:current};
   }
@@ -2395,27 +2409,27 @@
     var topSave=labels.save?'<button class="wizard-save" type="button" data-wizard-top-save>'+esc(labels.save)+'</button>':'';
     var topPrimary=labels.complete?'<button class="wizard-primary" type="button" data-wizard-top-complete>'+esc(labels.complete)+'</button>':'';
     var resolved=isResolvedReport(r);
-    var currentText=resolved?'Closed record review':((activeState&&activeState.state==="done")?'Reviewing a completed step':('Step '+active+' of 6'));
-    var helpText=resolved?'Read-only record. All completed sections are shown below; on desktop, click a green step to jump to it. Notes can still be added.':wizardHelp(active,r);
+    var currentText=resolved?'Closed report':((activeState&&activeState.state==="done")?'Looking back at a finished step':('Step '+active+' of 6'));
+    var helpText=resolved?'Read only. Every finished step is shown below; click a green step to jump to it. You can still add notes.':wizardHelp(active,r);
     el.className="wizard-process";
     el.innerHTML='<div class="wizard-process-head"><div class="wizard-process-copy"><b>'+esc(currentText)+(resolved?'':' · '+esc(wizardLongTitle(active)))+'</b><span>'+esc(helpText)+'</span></div><div class="wizard-top-actions">'+topSave+topPrimary+'</div></div><div class="process-flow">'+arrows+'</div><div class="reg-persistent-host" data-reg-persistent-host>'+persistentRegulatoryBannerHtml(r,active)+'</div>';
   }
 
-  function wizardShortTitle(n){ return ({1:"Review",2:"Investigation",3:"Action Plan",4:"Complete Action",5:"Verify",6:"Close"})[n]||"Step"; }
-  function wizardLongTitle(n){ return ({1:"Review Report",2:"Investigation",3:"Corrective Action Plan",4:"Complete Corrective Action",5:"Verify Corrective Action",6:"Close Record"})[n]||"Record"; }
+  function wizardShortTitle(n){ return ({1:"Review",2:"Find the cause",3:"Plan the fix",4:"Do the fix",5:"Check the fix",6:"Close"})[n]||"Step"; }
+  function wizardLongTitle(n){ return ({1:"Review the report",2:"Find the cause",3:"Plan the fix",4:"Do the fix",5:"Check the fix",6:"Close the report"})[n]||"Record"; }
   function wizardHelp(n,r){
-    var map={1:"Review the submission and decide what happens next.",2:"Document the underlying cause.",3:"Define the fix, control type, assigned user, due date, and priority.",4:"Each action owner documents and submits their assigned corrective action.",5:"Review each submitted corrective action and approve it or request changes.",6:"Confirm every required step is complete and close the record."};
+    var map={1:"Read the report and decide what happens next.",2:"Write down why it happened.",3:"Say what will be fixed, who does it and by when.",4:"Each person does their fix and says what they did.",5:"Look at each finished fix and approve it or send it back.",6:"Check the list and close the report."};
     var childSummary=correctiveActionSummary(r);
-    if(childSummary&&n===4) return childSummary.open>0?(childSummary.open+" corrective action"+(childSummary.open===1?" still needs":"s still need")+" completion before the workflow moves to verification."):"All corrective actions have been submitted for verification.";
-    if(childSummary&&n===5) return childSummary.verified+" of "+childSummary.total+" corrective actions verified.";
-    if(n===4 && r.action_status==="changes_requested" && canEditStep(r,4)) return "Changes were requested. Update the work and resubmit it for verification.";
-    if(currentRole==="supervisor" && n===1 && isInvestigatorAssignedToMe(r) && r.involves_injury && ["yes","no","pending"].indexOf(String(r.calosha_screening_status||""))<0) return "You own this investigation, but an Admin or Safety Manager must complete the regulatory screening before Review can advance.";
-    if(currentRole==="supervisor" && n<=3 && !isInvestigatorAssignedToMe(r)) return "This investigation is owned by "+(investigatorName(r)||"another dashboard user")+". You can review this step, but only the assigned investigator can change it.";
-    if(currentRole==="supervisor" && n===4 && !isActionAssignedToMe(r)) return "This corrective action is owned by "+(assigneeName(r)||"another dashboard user")+". You can review it, but only the assigned action owner can change it.";
-    if(n===5 && !canVerify()) return "This step is waiting for an Admin or Safety Manager to verify the work.";
-    if(n===5 && isManager() && r.verifier_user_id && !canPerformVerification(r)) return "Verification is assigned to "+(verifierName(r)||"another reviewer")+". You can review the record or reassign the verification owner.";
-    if(n===5 && isManager() && !r.verifier_user_id) return "Verification is unassigned. Any Admin or Safety Manager can review it, or assign a specific verification owner.";
-    if(n===6 && !canVerify()) return "An Admin or Safety Manager closes the record after verification.";
+    if(childSummary&&n===4) return childSummary.open>0?(childSummary.open+" fix"+(childSummary.open===1?" still needs":"es still need")+" to be finished before approval."):"All fixes have been sent for approval.";
+    if(childSummary&&n===5) return childSummary.verified+" of "+childSummary.total+" fixes approved.";
+    if(n===4 && r.action_status==="changes_requested" && canEditStep(r,4)) return "The fix was sent back. Update the work and send it for approval again.";
+    if(currentRole==="supervisor" && n===1 && isInvestigatorAssignedToMe(r) && r.involves_injury && ["yes","no","pending"].indexOf(String(r.calosha_screening_status||""))<0) return "You own this case, but an Admin or Safety Manager must answer the Cal/OSHA question before Review can move on.";
+    if(currentRole==="supervisor" && n<=3 && !isInvestigatorAssignedToMe(r)) return "This case is owned by "+(investigatorName(r)||"another person")+". You can look at this step, but only the case owner can change it.";
+    if(currentRole==="supervisor" && n===4 && !isActionAssignedToMe(r)) return "This fix belongs to "+(assigneeName(r)||"another person")+". You can look at it, but only the person doing the fix can change it.";
+    if(n===5 && !canVerify()) return "Waiting for an Admin or Safety Manager to approve the work.";
+    if(n===5 && isManager() && r.verifier_user_id && !canPerformVerification(r)) return "Approval is assigned to "+(verifierName(r)||"another reviewer")+". You can look at the report or change the approver.";
+    if(n===5 && isManager() && !r.verifier_user_id) return "Any Admin or Safety Manager can approve this, or you can pick one approver.";
+    if(n===6 && !canVerify()) return "An Admin or Safety Manager closes the report after approval.";
     return map[n]||"Follow the guided steps.";
   }
   function recommendedWizardStep(r){ var p=workflowProgress(r); if(r.status==="closed"||r.status==="no_action"||r.status==="duplicate") return 6; return p.current>=0?p.current+1:6; }
@@ -2433,12 +2447,12 @@
     if(!canEdit) return {save:null,complete:null};
     if(st&&st.state==="done" && n!==6) return {save:(n===2||n===3?"Save and close":null),complete:null};
     if(!isCurrent && n!==6) return {save:null,complete:null};
-    if(n===1) return {save:null,complete:"Complete review →"};
-    if(n===2) return {save:"Save and close",complete:"Complete investigation →"};
-    if(n===3) return {save:"Save and close",complete:"Save & assign action →"};
-    if(n===4){ if(r.action_status==="awaiting_verification"||r.action_status==="verified") return {save:null,complete:null}; return {save:"Save and close",complete:r.action_status==="changes_requested"?"Resubmit for verification →":"Submit for verification →"}; }
-    if(n===5){ if(!canPerformVerification(r)||r.action_status!=="awaiting_verification") return {save:null,complete:null}; return {save:"Save and close",complete:"Verify & continue →"}; }
-    if(n===6){ if(r.status==="closed"||r.status==="no_action"||r.status==="duplicate") return {save:null,complete:null}; return {save:null,complete:canClose(r)?"Close record":null}; }
+    if(n===1) return {save:null,complete:"Finish review →"};
+    if(n===2) return {save:"Save and close",complete:"Save cause & continue →"};
+    if(n===3) return {save:"Save and close",complete:"Save plan & assign →"};
+    if(n===4){ if(r.action_status==="awaiting_verification"||r.action_status==="verified") return {save:null,complete:null}; return {save:"Save and close",complete:r.action_status==="changes_requested"?"Send again for approval →":"Send for approval →"}; }
+    if(n===5){ if(!canPerformVerification(r)||r.action_status!=="awaiting_verification") return {save:null,complete:null}; return {save:"Save and close",complete:"Approve fix & continue →"}; }
+    if(n===6){ if(r.status==="closed"||r.status==="no_action"||r.status==="duplicate") return {save:null,complete:null}; return {save:null,complete:canClose(r)?"Close report":null}; }
     return {save:null,complete:null};
   }
   function syncWorkflowStickyOffset(){
@@ -2488,27 +2502,27 @@
   function renderCloseStep(r,el,detail,auditEl){
     if(!el) return;
     var disposed=r.status==="no_action"||r.status==="duplicate", closed=r.status==="closed";
-    if(disposed){ el.innerHTML='<div class="ops-alert"><b>Record complete — no corrective action required</b>This report was reviewed and closed with a documented disposition.</div>'; return; }
+    if(disposed){ el.innerHTML='<div class="ops-alert"><b>Done — no fix needed</b>This report was reviewed and closed with a reason.</div>'; return; }
     var checks=[
       [!!(r.status&&r.status!=="new"),"Report reviewed"],
-      [hasWorkflowValue(r.root_cause),"Root cause documented"],
-      [hasWorkflowValue(r.corrective_action),"Corrective action documented"],
-      [hasWorkflowValue(r.assigned_user_id),"Corrective action owner assigned"],
-      [hasWorkflowValue(r.due_date),"Due date documented"],
-      [hasWorkflowValue(r.priority),"Priority documented"],
-      [r.action_status==="verified","Corrective action verified"]
+      [hasWorkflowValue(r.root_cause),"Cause written down"],
+      [hasWorkflowValue(r.corrective_action),"Fix written down"],
+      [hasWorkflowValue(r.assigned_user_id),"Person doing the fix assigned"],
+      [hasWorkflowValue(r.due_date),"Due date set"],
+      [hasWorkflowValue(r.priority),"Priority set"],
+      [r.action_status==="verified","Fix approved"]
     ];
     var list=checks.map(function(x){return '<div class="close-check '+(x[0]?'ok':'missing')+'"><b>'+(x[0]?'✓':'!')+'</b><span>'+esc(x[1])+'</span></div>';}).join("");
-    if(closed){ el.innerHTML='<div class="ops-alert"><b>Record complete</b>This incident is closed. The full history remains available below.</div><div class="close-checklist">'+list+'</div>'; return; }
-    var ready=canClose(r), button=ready&&canEditStep(r,6)?'<button class="wizard-close" type="button" data-step-complete="6">Close record</button>':'';
-    el.innerHTML='<div class="close-checklist">'+list+'</div>'+(ready?'<div class="wizard-context"><b>Ready to close</b><p>All required workflow steps are complete. Closing the record will preserve the full history and mark it resolved.</p></div>':'<div class="wizard-required show">Complete the missing checklist items before this record can be closed.</div>')+'<div class="wizard-footer"><div class="wizard-footer-copy">Closing is a deliberate final action. There is no autosave or automatic closure.</div><div class="wizard-footer-actions">'+button+'</div></div>';
+    if(closed){ el.innerHTML='<div class="ops-alert"><b>Done</b>This report is closed. Its full history is below.</div><div class="close-checklist">'+list+'</div>'; return; }
+    var ready=canClose(r), button=ready&&canEditStep(r,6)?'<button class="wizard-close" type="button" data-step-complete="6">Close report</button>':'';
+    el.innerHTML='<div class="close-checklist">'+list+'</div>'+(ready?'<div class="wizard-context"><b>Ready to close</b><p>Every step is done. Closing keeps the full history and marks the report finished.</p></div>':'<div class="wizard-required show">Finish the items marked ! before closing.</div>')+'<div class="wizard-footer"><div class="wizard-footer-copy">Nothing closes on its own. Closing only happens when you click Close report.</div><div class="wizard-footer-actions">'+button+'</div></div>';
     var btn=el.querySelector('[data-step-complete="6"]');
     if(btn) btn.addEventListener("click",async function(){
-      if(!canEditStep(r,6)){ toast("Only an Admin or Safety Manager can close the record.","err"); return; }
-      if(!canClose(r)){ toast("Complete and verify the corrective action before closing the record.","err"); return; }
+      if(!canEditStep(r,6)){ toast("Only an Admin or Safety Manager can close the report.","err"); return; }
+      if(!canClose(r)){ toast("Finish and approve the fix before closing the report.","err"); return; }
       btn.disabled=true; var old=btn.textContent; btn.textContent="Closing…";
-      try{ await updateStatus(r.id,"closed",null); $("incidentSummary").innerHTML='<div class="is-badges">'+incidentBadgeHtml(r)+'</div><div class="is-desc">'+esc(r.description||"No description provided.")+'</div>'; refreshRecordWorkflow(r,detail); loadAudit(r.id,auditEl); renderMyWork(); renderActions(); applyFilters(); toast("Record closed","ok"); }
-      catch(ex){ console.error(ex); toast("Could not close the record.","err"); }
+      try{ await updateStatus(r.id,"closed",null); $("incidentSummary").innerHTML='<div class="is-badges">'+incidentBadgeHtml(r)+'</div><div class="is-desc">'+esc(r.description||"No description provided.")+'</div>'; refreshRecordWorkflow(r,detail); loadAudit(r.id,auditEl); renderMyWork(); renderActions(); applyFilters(); toast("Report closed","ok"); }
+      catch(ex){ console.error(ex); toast("Could not close the report.","err"); }
       finally{ if(btn.isConnected){btn.disabled=false;btn.textContent=old;} }
     });
   }
@@ -2525,11 +2539,11 @@
     });
     var banner=detail.querySelector("[data-resolved-banner]");
     if(banner){
-      var disposition=(r.status==="no_action"||r.status==="duplicate")?"This report was closed without corrective action.":"This incident is closed and the workflow is locked.";
+      var disposition=(r.status==="no_action"||r.status==="duplicate")?"This report was closed — no fix needed.":"This report is closed and locked.";
       var canReopen=canReopenReport(r);
-      var reopenHelp=canReopen?" Admins and Safety Managers can reopen this record if new information arises or it was closed in error.":"";
-      var reopenAction=canReopen?'<button class="banner-action" type="button" data-reopen-inline>Reopen record</button>':'';
-      banner.innerHTML='<div class="resolved-review-banner"><b>Closed record · read only</b><span>'+esc(disposition)+' Review the preserved information below. Authorized users can still add a note in Notes &amp; activity history.'+esc(reopenHelp)+'</span>'+reopenAction+'</div>';
+      var reopenHelp=canReopen?" Admins and Safety Managers can reopen it if new information comes in or it was closed by mistake.":"";
+      var reopenAction=canReopen?'<button class="banner-action" type="button" data-reopen-inline>Reopen report</button>':'';
+      banner.innerHTML='<div class="resolved-review-banner"><b>Closed · read only</b><span>'+esc(disposition)+' Everything is saved below. You can still add a note in Notes &amp; activity history.'+esc(reopenHelp)+'</span>'+reopenAction+'</div>';
       var inlineReopen=banner.querySelector("[data-reopen-inline]"); if(inlineReopen) inlineReopen.addEventListener("click",function(){ openReopenModal(r,lastOperationalView); });
     }
     renderRecordProgress(r,detail.querySelector("[data-record-progress]"));
@@ -2546,7 +2560,7 @@
     if(banner){
       if(r.last_reopened_at){
         var prior=STATUS[r.last_reopen_from_status]?STATUS[r.last_reopen_from_status].l:(r.last_reopen_from_status||"resolved");
-        banner.innerHTML='<div class="resolved-review-banner"><b>Reopened record · review starts again at Step 1</b><span>Previously '+esc(prior)+' · reopened '+esc(fmtDate(r.last_reopened_at))+'. Prior investigation and action-plan values were carried forward so you can confirm or update them instead of re-entering everything. Each step must still be reconfirmed in order, and verification is required again before closure.</span></div>';
+        banner.innerHTML='<div class="resolved-review-banner"><b>Reopened · starting again at Step 1</b><span>Previously '+esc(prior)+' · reopened '+esc(fmtDate(r.last_reopened_at))+'. Earlier answers were kept so you only need to confirm or update them. Each step still needs to be confirmed in order, and the fix must be approved again before closing.</span></div>';
       } else banner.innerHTML="";
     }
     var n=parseInt(detail.dataset.wizardStep||"0",10)||initialWizardStep(r);
@@ -2566,7 +2580,7 @@
         try{
           await saveWorkflowGuidancePreference(enabled);
           var pg=$("profileGuidance"); if(pg) pg.checked=enabled;
-          toast(enabled?"Workflow guidance will be shown by default.":"Workflow guidance will stay hidden by default.","ok");
+          toast(enabled?"Helper tips will be shown.":"Helper tips will be hidden.","ok");
         }catch(ex){
           console.error("guidance preference",ex);
           guidanceToggle.checked=!enabled;
@@ -2601,7 +2615,7 @@
         var selected=profileById[String(nextId)];
         if(!selected || selected.is_active===false || selected.app_role==="read_only") throw new Error("INVALID_INVESTIGATOR");
       }
-      if(String(r.investigator_user_id||"")===String(nextId||"")){ syncInvestigatorUi(); if(showToast) toast("Investigator assignment is already up to date","ok"); return true; }
+      if(String(r.investigator_user_id||"")===String(nextId||"")){ syncInvestigatorUi(); if(showToast) toast("Case owner is already set","ok"); return true; }
       var res=await sb.from("reports").update({investigator_user_id:nextId}).eq("id",r.id);
       if(res.error) throw res.error;
       r.investigator_user_id=nextId;
@@ -2611,23 +2625,23 @@
       var notify=null;
       if(nextId) notify=await sendInvestigatorAssignmentEmail(r);
       if(showToast){
-        if(!nextId) toast("Investigator assignment cleared","ok");
-        else if(notify&&notify.sent) toast(notify.duplicate?"Investigator assigned — email was already sent":"Investigator assigned — email notification sent","ok");
-        else if(notify&&notify.skipped&&(notify.reason==="NO_INVESTIGATOR_EMAIL"||notify.reason==="SEND_ALREADY_IN_PROGRESS")) toast(notify.reason==="NO_INVESTIGATOR_EMAIL"?"Investigator assigned — no email is available for that user":"Investigator assigned — email notification is already in progress","ok");
-        else { console.error("investigator notification failed",notify); toast("Investigator assigned, but the email notification could not be sent.","err"); }
+        if(!nextId) toast("Case owner removed","ok");
+        else if(notify&&notify.sent) toast(notify.duplicate?"Case owner assigned — email was already sent":"Case owner assigned — email sent","ok");
+        else if(notify&&notify.skipped&&(notify.reason==="NO_INVESTIGATOR_EMAIL"||notify.reason==="SEND_ALREADY_IN_PROGRESS")) toast(notify.reason==="NO_INVESTIGATOR_EMAIL"?"Case owner assigned — no email on file for that person":"Case owner assigned — email is on its way","ok");
+        else { console.error("investigator notification failed",notify); toast("Case owner assigned, but the email could not be sent.","err"); }
       } else if(nextId && notify && !notify.sent && !notify.skipped){
         console.error("investigator notification failed",notify);
-        toast("Investigator was assigned, but the email notification could not be sent.","err");
+        toast("Case owner assigned, but the email could not be sent.","err");
       }
       return true;
     }
     syncInvestigatorUi();
-    if(investigatorSave) investigatorSave.addEventListener("click",async function(){ investigatorSave.disabled=true; try{await persistInvestigator(investigatorSelect?investigatorSelect.value:null,true);}catch(ex){console.error(ex);toast(ex&&ex.message==="INVALID_INVESTIGATOR"?"Choose an active dashboard user who is not Read Only.":"Could not save the investigator assignment.","err");}finally{syncInvestigatorUi();} });
+    if(investigatorSave) investigatorSave.addEventListener("click",async function(){ investigatorSave.disabled=true; try{await persistInvestigator(investigatorSelect?investigatorSelect.value:null,true);}catch(ex){console.error(ex);toast(ex&&ex.message==="INVALID_INVESTIGATOR"?"Choose an active Admin, Safety Manager or Supervisor.":"Could not save the case owner.","err");}finally{syncInvestigatorUi();} });
     if(investigatorSelf) investigatorSelf.addEventListener("click",async function(){
       if(!currentSession||!currentSession.user){toast("Sign in again before assigning this report.","err");return;}
       investigatorSelf.disabled=true;
       try{ if(investigatorSelect) investigatorSelect.value=currentSession.user.id; await persistInvestigator(currentSession.user.id,true); }
-      catch(ex){console.error(ex);toast("Could not assign this investigation to your account.","err");}
+      catch(ex){console.error(ex);toast("Could not make you the case owner.","err");}
       finally{syncInvestigatorUi();}
     });
 
@@ -2648,10 +2662,10 @@
     async function persistRegulatoryReview(showToast){
       if(!r.involves_injury) return true;
       if(!regCard || !regStatus || !regAwareness) return false;
-      if(!canVerify()){ toast("Only an Admin or Safety Manager can complete the regulatory screening.","err"); return false; }
+      if(!canVerify()){ toast("Only an Admin or Safety Manager can answer the Cal/OSHA question.","err"); return false; }
       var status=regStatus.value, awareRaw=regAwareness.value;
-      if(!status){ if(regRequired){regRequired.textContent="Choose a screening result before completing this review.";regRequired.classList.add("show");} toast("Choose a regulatory screening result.","err"); return false; }
-      if((status==="yes"||status==="pending")&&!awareRaw){ if(regRequired){regRequired.textContent="Record when RBH first knew of the potentially serious outcome for a Yes or Pending screening.";regRequired.classList.add("show");} toast("Add the RBH awareness date and time.","err"); return false; }
+      if(!status){ if(regRequired){regRequired.textContent="Answer the Cal/OSHA question before finishing this review.";regRequired.classList.add("show");} toast("Answer the Cal/OSHA question.","err"); return false; }
+      if((status==="yes"||status==="pending")&&!awareRaw){ if(regRequired){regRequired.textContent="For Yes or Not sure, enter when RBH first found out it might be serious.";regRequired.classList.add("show");} toast("Add the RBH awareness date and time.","err"); return false; }
       var awareIso=null;
       if(awareRaw){
         var d=new Date(awareRaw);
@@ -2668,16 +2682,16 @@
       refreshUrgentTriage(detail,r);
       if(regSaved){regSaved.hidden=false;setTimeout(function(){regSaved.hidden=true;},2200);}
       if(changed) loadAudit(r.id,auditEl);
-      if(showToast) toast("Regulatory screening saved","ok");
+      if(showToast) toast("Cal/OSHA answer saved","ok");
       return true;
     }
-    if(regSave) regSave.addEventListener("click",async function(){ regSave.disabled=true; try{await persistRegulatoryReview(true);}catch(ex){console.error(ex);toast("Could not save the regulatory screening.","err");}finally{if(regSave.isConnected)regSave.disabled=!canVerify()||isResolvedReport(r);} });
+    if(regSave) regSave.addEventListener("click",async function(){ regSave.disabled=true; try{await persistRegulatoryReview(true);}catch(ex){console.error(ex);toast("Could not save the Cal/OSHA answer.","err");}finally{if(regSave.isConnected)regSave.disabled=!canVerify()||isResolvedReport(r);} });
 
     var noActionBox=detail.querySelector("[data-noaction-box]"), noActionBtn=detail.querySelector("[data-noaction-btn]");
     if(noActionBox) noActionBox.style.display=(canVerify() && r.status!=="closed" && r.status!=="no_action" && r.status!=="duplicate")?"flex":"none";
     if(noActionBtn) noActionBtn.addEventListener("click",async function(){
-      if(!canVerify()){toast("Only an Admin or Safety Manager can close a report without corrective action.","err");return;}
-      if(r.involves_injury){ try{ if(!(await persistRegulatoryReview(false))) return; }catch(ex){console.error(ex);toast("Could not save the regulatory screening.","err");return;} }
+      if(!canVerify()){toast("Only an Admin or Safety Manager can close a report with no fix.","err");return;}
+      if(r.involves_injury){ try{ if(!(await persistRegulatoryReview(false))) return; }catch(ex){console.error(ex);toast("Could not save the Cal/OSHA answer.","err");return;} }
       openDispositionModal(r,wrap,detail.querySelector("[data-notes]"));
     });
 
@@ -2697,31 +2711,31 @@
       if(advanceReopen && activeReopenStep(r)) patch.reopen_workflow_step=3;
       var changed={}; Object.keys(patch).forEach(function(k){if(String(r[k]??"")!==String(patch[k]??""))changed[k]=patch[k];});
       if(Object.keys(changed).length){var res=await sb.from("reports").update(changed).eq("id",r.id);if(res.error)throw res.error;Object.keys(changed).forEach(function(k){r[k]=changed[k];});}
-      refreshRecordWorkflow(r,detail); loadAudit(r.id,auditEl); if(showToast) toast("Investigation saved","ok"); return true;
+      refreshRecordWorkflow(r,detail); loadAudit(r.id,auditEl); if(showToast) toast("Cause saved","ok"); return true;
     }
     function actionStatusLabel(status){
-      return ({not_started:"Not started",in_progress:"In progress",awaiting_verification:"Awaiting verification",verified:"Verified",changes_requested:"Changes requested"})[status]||"Draft";
+      return ({not_started:"Not started",in_progress:"In progress",awaiting_verification:"Waiting for approval",verified:"Approved",changes_requested:"Sent back for changes"})[status]||"Draft";
     }
     function renderCorrectiveActionOverview(){
       if(!actionPlanOverviews||!actionPlanOverviews.length) return;
       var html="";
       if(actionPlanState.loading){
-        html='<div class="multi-action-loading">Loading corrective-action plan…</div>';
+        html='<div class="multi-action-loading">Loading the fix plan…</div>';
       } else {
         var rows=actionPlanState.actions.filter(function(a){return !!a.id && !a.retired_at && !!a.activated_at;});
         if(!rows.length){
-          html='<div class="multi-action-loading">No active corrective actions are recorded for this workflow.</div>';
+          html='<div class="multi-action-loading">No fixes have been planned yet.</div>';
         } else {
-          html='<div class="multi-action-overview-head"><b>Corrective action plan</b><span>'+rows.length+' active action'+(rows.length===1?'':'s')+' assigned for this report.</span></div>'+
+          html='<div class="multi-action-overview-head"><b>Fix plan</b><span>'+rows.length+' fix'+(rows.length===1?'':'es')+' planned for this report.</span></div>'+
             rows.map(function(a){
               var owner=a.owner_user_id&&profileById[String(a.owner_user_id)]?profileName(profileById[String(a.owner_user_id)]):"Not assigned";
               var control=a.control_type?(controlTypeLabel(a.control_type)||a.control_type):"Not selected";
               var due=a.due_date?fmtDate(a.due_date):"No due date";
               var priority=a.priority?String(a.priority).charAt(0).toUpperCase()+String(a.priority).slice(1):"No priority";
               return '<div class="multi-action-overview-card">'+
-                '<div class="multi-action-overview-top"><div class="multi-action-overview-title">Corrective Action #'+esc(a.action_number||"")+'</div><span class="multi-action-status">'+esc(actionStatusLabel(a.status))+'</span></div>'+
+                '<div class="multi-action-overview-top"><div class="multi-action-overview-title">Fix #'+esc(a.action_number||"")+'</div><span class="multi-action-status">'+esc(actionStatusLabel(a.status))+'</span></div>'+
                 '<div class="multi-action-overview-desc">'+esc(a.description||"No description recorded.")+'</div>'+
-                '<div class="multi-action-overview-meta"><span><b>Owner:</b> '+esc(owner)+'</span><span><b>Due:</b> '+esc(due)+'</span><span><b>Priority:</b> '+esc(priority)+'</span><span><b>Control:</b> '+esc(control)+'</span></div>'+
+                '<div class="multi-action-overview-meta"><span><b>Fix by:</b> '+esc(owner)+'</span><span><b>Due:</b> '+esc(due)+'</span><span><b>Priority:</b> '+esc(priority)+'</span><span><b>Type:</b> '+esc(control)+'</span></div>'+
               '</div>';
             }).join("");
         }
@@ -2774,7 +2788,7 @@
       multiActionVerificationStage.hidden=false;
       var rows=actionPlanState.actions.filter(function(a){return !!a.id&&correctiveActionInCurrentCycle(a,r);});
       if(!rows.length){
-        multiActionVerificationStage.innerHTML='<div class="multi-action-stage-note">No active corrective actions are available for verification.</div>';
+        multiActionVerificationStage.innerHTML='<div class="multi-action-stage-note">No fixes are waiting for approval.</div>';
         return;
       }
 
@@ -2791,46 +2805,46 @@
         if(status==="verified"){
           review='<div class="multi-action-verifier-note"><b>Verified'+(a.verified_at?' · '+esc(fmtDate(a.verified_at)):'')+'</b>'+
             (a.verification_note?esc(a.verification_note):"No reviewer note recorded.")+
-            (verifiedBy?'<div class="action-meta">Verified by '+esc(verifiedBy)+'</div>':'')+
+            (verifiedBy?'<div class="action-meta">Approved by '+esc(verifiedBy)+'</div>':'')+
           '</div>';
         } else if(status==="awaiting_verification"){
           var canReview=canVerifyCorrectiveAction(a);
           var assignment="";
           if(isManager()){
             assignment='<div class="multi-action-verifier-controls">'+
-              '<label class="inv-l">Verification owner<select data-child-verifier-select="'+esc(a.id)+'">'+verifierOptions(a.verifier_user_id||"")+'</select></label>'+
+              '<label class="inv-l">Approver<select data-child-verifier-select="'+esc(a.id)+'">'+verifierOptions(a.verifier_user_id||"")+'</select></label>'+
               '<button class="wizard-save" type="button" data-child-verifier-self="'+esc(a.id)+'">Assign to me</button>'+
               '<button class="wizard-save" type="button" data-child-verifier-save="'+esc(a.id)+'">Save assignment</button>'+
             '</div>';
           } else {
-            assignment='<div class="multi-action-verifier-note"><b>Verification owner</b>'+esc(verifier)+'</div>';
+            assignment='<div class="multi-action-verifier-note"><b>Approver</b>'+esc(verifier)+'</div>';
           }
 
           if(canReview){
             review=assignment+
               '<div class="mav-review">'+
-                '<label class="inv-l">Reviewer verification note <span style="font-weight:400;color:var(--muted)">(optional when approving)</span>'+
-                  '<textarea data-child-verification-note="'+esc(a.id)+'" placeholder="What did you verify? If requesting changes, explain exactly what still needs to be done.">'+esc(a.verification_note||"")+'</textarea>'+
+                '<label class="inv-l">Approval note <span style="font-weight:400;color:var(--muted)">(optional when approving)</span>'+
+                  '<textarea data-child-verification-note="'+esc(a.id)+'" placeholder="What did you check? If sending it back, say exactly what still needs to be done.">'+esc(a.verification_note||"")+'</textarea>'+
                 '</label>'+
                 '<div class="wizard-required" data-child-verification-required="'+esc(a.id)+'">Add a reviewer note explaining the requested changes.</div>'+
                 '<div class="multi-action-verification-actions">'+
                   '<button class="multi-action-request-changes" type="button" data-child-request-changes="'+esc(a.id)+'">Request changes</button>'+
-                  '<button class="wizard-primary" type="button" data-child-verify-action="'+esc(a.id)+'">Verify action</button>'+
+                  '<button class="wizard-primary" type="button" data-child-verify-action="'+esc(a.id)+'">Approve fix</button>'+
                 '</div>'+
               '</div>';
           } else {
             review=assignment+
-              '<div class="multi-action-verifier-note"><b>Waiting for assigned reviewer</b>Verification is assigned to '+esc(verifier)+'. An Admin may override the assignment; otherwise the assigned Safety Manager completes this review.</div>';
+              '<div class="multi-action-verifier-note"><b>Waiting for the approver</b>Approval is assigned to '+esc(verifier)+'. An Admin may override the assignment; otherwise the assigned Safety Manager completes this review.</div>';
           }
         } else if(status==="changes_requested"){
           review='<div class="ops-alert critical"><b>Changes requested</b>'+esc(a.verification_note||"The reviewer requested additional work.")+'</div>'+
-            '<div class="multi-action-verifier-note"><b>Waiting for owner</b>'+esc(owner)+' must update and resubmit this corrective action.</div>';
+            '<div class="multi-action-verifier-note"><b>Waiting for owner</b>'+esc(owner)+' must update this fix and send it again.</div>';
         } else {
-          review='<div class="multi-action-verifier-note"><b>Not ready for verification</b>This action must be completed and submitted by '+esc(owner)+' before a reviewer can verify it.</div>';
+          review='<div class="multi-action-verifier-note"><b>Not ready for approval</b>This fix must be finished and sent by '+esc(owner)+' before it can be approved.</div>';
         }
 
         return '<div class="multi-action-verification-card" data-child-verification-card="'+esc(a.id)+'">'+
-          '<div class="mav-head"><div class="mav-title"><b>Corrective Action #'+esc(a.action_number||"")+'</b><span>Owner: '+esc(owner)+'</span></div><span class="multi-action-status">'+esc(actionStatusLabel(status))+'</span></div>'+
+          '<div class="mav-head"><div class="mav-title"><b>Fix #'+esc(a.action_number||"")+'</b><span>Owner: '+esc(owner)+'</span></div><span class="multi-action-status">'+esc(actionStatusLabel(status))+'</span></div>'+
           '<div class="mav-desc">'+esc(a.description||"No description recorded.")+'</div>'+
           (a.completion_note?'<div class="multi-action-completion-note"><b>Completed work submitted</b>'+esc(a.completion_note)+(a.completed_at?'<div class="action-meta">Submitted '+esc(fmtDate(a.completed_at))+(completedBy?' by '+esc(completedBy):'')+'</div>':'')+'</div>':'')+
           '<div class="evidence-panel" data-action-evidence data-corrective-action-id="'+esc(a.id)+'"></div>'+
@@ -2840,10 +2854,10 @@
 
       var footerHtml=
         '<div class="multi-action-verification-footer">'+
-          '<div class="mavf-status"><b>'+verifiedCount+' of '+rows.length+' corrective action'+(rows.length===1?'':'s')+' verified.</b>'+
-          (allVerified?' All corrective actions are complete. Continue to the final Close step.':' Verify each remaining action before the report can move to Close.')+
+          '<div class="mavf-status"><b>'+verifiedCount+' of '+rows.length+' fix'+(rows.length===1?'':'es')+' approved.</b>'+
+          (allVerified?' All fixes are approved. Continue to Close.':' Approve each remaining fix before the report can move to Close.')+
           '</div>'+
-          (allVerified?'<button class="wizard-primary" type="button" data-all-actions-verified>All actions verified — Continue to Close</button>':'')+
+          (allVerified?'<button class="wizard-primary" type="button" data-all-actions-verified>All fixes approved — continue to Close</button>':'')+
         '</div>';
 
       // Build the complete DOM once. Do not mutate innerHTML after evidence
@@ -2885,18 +2899,18 @@
         if(status==="verified"){
           work='<div class="multi-action-completion-note"><b>Verified</b>'+(a.completion_note?esc(a.completion_note):"Completion recorded.")+(a.completed_at?'<div class="action-meta">Submitted '+esc(fmtDate(a.completed_at))+(completedBy?' by '+esc(completedBy):'')+'</div>':'')+'</div>';
         } else if(status==="awaiting_verification"){
-          work='<div class="multi-action-completion-note"><b>Awaiting verification</b>'+esc(a.completion_note||"Completion submitted.")+(a.completed_at?'<div class="action-meta">Submitted '+esc(fmtDate(a.completed_at))+(completedBy?' by '+esc(completedBy):'')+'</div>':'')+'</div>';
+          work='<div class="multi-action-completion-note"><b>Waiting for approval</b>'+esc(a.completion_note||"Completion submitted.")+(a.completed_at?'<div class="action-meta">Submitted '+esc(fmtDate(a.completed_at))+(completedBy?' by '+esc(completedBy):'')+'</div>':'')+'</div>';
         } else if(editable){
           work=(status==="changes_requested"&&a.verification_note?'<div class="ops-alert"><b>Changes requested</b>'+esc(a.verification_note)+'</div>':'')+
             '<div class="mac-work"><label class="inv-l">Completed work<textarea data-child-completion-note="'+esc(a.id)+'" placeholder="Describe exactly what was completed or changed.">'+esc(a.completion_note||"")+'</textarea></label>'+
-            '<div class="multi-action-completion-actions"><button class="wizard-primary" type="button" data-submit-child-completion="'+esc(a.id)+'">'+(status==="changes_requested"?'Resubmit for verification →':'Submit for verification →')+'</button></div></div>';
+            '<div class="multi-action-completion-actions"><button class="wizard-primary" type="button" data-submit-child-completion="'+esc(a.id)+'">'+(status==="changes_requested"?'Send again for approval →':'Send for approval →')+'</button></div></div>';
         } else {
-          work='<div class="multi-action-completion-note"><b>Assigned owner</b>'+esc(owner)+' must complete this corrective action before it can move to verification.</div>';
+          work='<div class="multi-action-completion-note"><b>Assigned owner</b>'+esc(owner)+' must finish this fix before it can be approved.</div>';
         }
         return '<div class="multi-action-completion-card" data-child-completion-card="'+esc(a.id)+'">'+
-          '<div class="mac-head"><div class="mac-title"><b>Corrective Action #'+esc(a.action_number||"")+'</b><span>'+esc(owner)+'</span></div><span class="multi-action-status">'+esc(actionStatusLabel(status))+'</span></div>'+
+          '<div class="mac-head"><div class="mac-title"><b>Fix #'+esc(a.action_number||"")+'</b><span>'+esc(owner)+'</span></div><span class="multi-action-status">'+esc(actionStatusLabel(status))+'</span></div>'+
           '<div class="mac-desc">'+esc(a.description||"No description recorded.")+'</div>'+
-          '<div class="mac-meta"><span><b>Due:</b> '+esc(due)+'</span><span><b>Priority:</b> '+esc(priority)+'</span><span><b>Control:</b> '+esc(control)+'</span></div>'+
+          '<div class="mac-meta"><span><b>Due:</b> '+esc(due)+'</span><span><b>Priority:</b> '+esc(priority)+'</span><span><b>Type:</b> '+esc(control)+'</span></div>'+
           work+
           '<div class="evidence-panel" data-action-evidence data-corrective-action-id="'+esc(a.id)+'"></div>'+
         '</div>';
@@ -2910,22 +2924,22 @@
     function renderCorrectiveActionPlan(){
       renderCorrectiveActionOverview();
       if(!actionPlanList) return;
-      if(actionPlanState.loading){ actionPlanList.innerHTML='<div class="multi-action-loading">Loading corrective-action plan…</div>'; return; }
+      if(actionPlanState.loading){ actionPlanList.innerHTML='<div class="multi-action-loading">Loading the fix plan…</div>'; return; }
       if(!actionPlanState.actions.length) actionPlanState.actions=[newLocalCorrectiveAction()];
       var editable=canEditStep(r,3);
       actionPlanList.innerHTML=actionPlanState.actions.map(function(a,idx){
         var locked=!!(a.id && ["awaiting_verification","verified","changes_requested"].indexOf(String(a.status||""))>=0);
         var disabled=(!editable||locked)?' disabled':'';
-        var title=a.action_number?("Corrective Action #"+a.action_number):("New Corrective Action "+(idx+1));
+        var title=a.action_number?("Fix #"+a.action_number):("New fix "+(idx+1));
         var live=!!a.activated_at;
         return '<div class="multi-action-card'+(live?' is-activated':'')+(locked?' is-locked':'')+'" data-action-card data-action-index="'+idx+'">'+
-          '<div class="multi-action-head"><div class="multi-action-title"><b>'+esc(title)+'</b><span>'+(live?'Active assignment':'Draft action')+(locked?' · locked at current workflow status':'')+'</span></div><div class="multi-action-head-actions"><span class="multi-action-status">'+esc(actionStatusLabel(a.status))+'</span><button class="multi-action-remove" type="button" data-remove-corrective-action="'+idx+'"'+((!editable||locked)?' disabled':'')+'>Remove</button></div></div>'+
+          '<div class="multi-action-head"><div class="multi-action-title"><b>'+esc(title)+'</b><span>'+(live?'Assigned':'Draft')+(locked?' · locked at this step':'')+'</span></div><div class="multi-action-head-actions"><span class="multi-action-status">'+esc(actionStatusLabel(a.status))+'</span><button class="multi-action-remove" type="button" data-remove-corrective-action="'+idx+'"'+((!editable||locked)?' disabled':'')+'>Remove</button></div></div>'+
           '<div class="multi-action-fields">'+
-            '<label class="inv-l">Corrective action required<textarea data-action-field="description" placeholder="What needs to be corrected or changed?"'+disabled+'>'+esc(a.description||"")+'</textarea><span class="field-guidance compact">State the specific work or change needed to correct the issue.</span><div class="multi-action-translation" data-action-translation hidden></div></label>'+
-            '<label class="inv-l">Control type<select data-action-field="control_type"'+disabled+'><option value="">— Select control type —</option><option value="elimination"'+(a.control_type==="elimination"?' selected':'')+'>Elimination — remove the hazard</option><option value="substitution"'+(a.control_type==="substitution"?' selected':'')+'>Substitution — replace the hazard</option><option value="engineering"'+(a.control_type==="engineering"?' selected':'')+'>Engineering control — isolate people from the hazard</option><option value="administrative"'+(a.control_type==="administrative"?' selected':'')+'>Administrative / work practice — change how work is performed</option><option value="ppe"'+(a.control_type==="ppe"?' selected':'')+'>PPE — protect the worker</option><option value="other"'+(a.control_type==="other"?' selected':'')+'>Other</option></select><span class="field-guidance compact">Choose the highest practical level in the hierarchy of controls.</span></label>'+
-            '<label class="inv-l">Assigned dashboard user<select data-action-field="owner_user_id"'+disabled+'>'+assignmentOptions(a.owner_user_id||"")+'</select><span class="field-guidance compact">Choose the person responsible for completing this specific corrective action.</span></label>'+
-            '<div class="inv-row"><label class="inv-l">Due date<input type="date" data-action-field="due_date" value="'+esc(a.due_date||"")+'"'+disabled+'><span class="field-guidance compact">Set this action’s completion deadline.</span></label><label class="inv-l">Priority<select data-action-field="priority"'+disabled+'><option value="">— Choose priority —</option><option value="low"'+(a.priority==="low"?' selected':'')+'>Low</option><option value="medium"'+(a.priority==="medium"?' selected':'')+'>Medium</option><option value="high"'+(a.priority==="high"?' selected':'')+'>High</option></select><span class="field-guidance compact">Set the urgency for this action.</span></label></div>'+
-          '</div>'+(live?'<div class="multi-action-live-note"><b>Active action</b>Changes to an active plan save immediately to the action record. Owner changes generate a fresh assignment alert for that action.</div>':'')+
+            '<label class="inv-l">What will be fixed?<textarea data-action-field="description" placeholder="Example: Check ladder footing before every attic entry and add it to the morning checklist."'+disabled+'>'+esc(a.description||"")+'</textarea><span class="field-guidance compact">Say exactly what will be changed or done.</span><div class="multi-action-translation" data-action-translation hidden></div></label>'+
+            '<label class="inv-l">Type of fix<select data-action-field="control_type"'+disabled+'><option value="">— Choose the type of fix —</option><option value="elimination"'+(a.control_type==="elimination"?' selected':'')+'>Remove the hazard completely (best)</option><option value="substitution"'+(a.control_type==="substitution"?' selected':'')+'>Swap for something safer</option><option value="engineering"'+(a.control_type==="engineering"?' selected':'')+'>Guard, barrier or better equipment</option><option value="administrative"'+(a.control_type==="administrative"?' selected':'')+'>New rule, checklist or training</option><option value="ppe"'+(a.control_type==="ppe"?' selected':'')+'>PPE — protect the worker</option><option value="other"'+(a.control_type==="other"?' selected':'')+'>Other</option></select><span class="field-guidance compact">Pick the strongest option that is practical. Removing the hazard beats a rule; a rule beats relying on safety gear alone.</span></label>'+
+            '<label class="inv-l">Who will do it?<select data-action-field="owner_user_id"'+disabled+'>'+assignmentOptions(a.owner_user_id||"")+'</select><span class="field-guidance compact">Who will do this fix?</span></label>'+
+            '<div class="inv-row"><label class="inv-l">Due date<input type="date" data-action-field="due_date" value="'+esc(a.due_date||"")+'"'+disabled+'><span class="field-guidance compact">When should it be done?</span></label><label class="inv-l">Priority<select data-action-field="priority"'+disabled+'><option value="">— Choose priority —</option><option value="low"'+(a.priority==="low"?' selected':'')+'>Low</option><option value="medium"'+(a.priority==="medium"?' selected':'')+'>Medium</option><option value="high"'+(a.priority==="high"?' selected':'')+'>High</option></select><span class="field-guidance compact">How soon does it matter?</span></label></div>'+
+          '</div>'+(live?'<div class="multi-action-live-note"><b>This fix is live</b>Changes save right away. Picking a different person sends them a new alert.</div>':'')+
         '</div>';
       }).join("");
       if(actionPlanAdd) actionPlanAdd.disabled=!editable || actionPlanState.actions.length>=25;
@@ -2949,13 +2963,13 @@
     function validateCorrectiveActionPlan(requireComplete){
       syncCorrectiveActionStateFromUi();
       var missing=[];
-      if(!actionPlanState.actions.length) missing.push("at least one corrective action");
+      if(!actionPlanState.actions.length) missing.push("at least one fix");
       actionPlanState.actions.forEach(function(a,idx){
-        var label=a.action_number?("Action #"+a.action_number):("Action "+(idx+1));
+        var label=a.action_number?("Fix #"+a.action_number):("Fix "+(idx+1));
         if(!String(a.description||"").trim()) missing.push(label+" description");
         if(requireComplete){
-          if(!a.control_type) missing.push(label+" control type");
-          if(!a.owner_user_id) missing.push(label+" owner");
+          if(!a.control_type) missing.push(label+" type of fix");
+          if(!a.owner_user_id) missing.push(label+" person doing it");
           if(!a.due_date) missing.push(label+" due date");
           if(!a.priority) missing.push(label+" priority");
         }
@@ -3007,7 +3021,7 @@
         emailResults=await emailActivatedCorrectiveActions((activation.data&&activation.data.actions)||actionPlanState.actions);
       }
       loadAudit(r.id,auditEl); refreshOverdue(r,wrap); refreshRecordWorkflow(r,detail); renderMetrics(); renderHomeSnapshot(); renderMyWork(); renderActions();
-      if(showToast) toast(wasActivated?"Active action plan updated":"Action plan saved","ok");
+      if(showToast) toast(wasActivated?"Fix plan updated":"Fix plan saved","ok");
       return {ok:true,activation:activation&&activation.data,emailResults:emailResults};
     }
 
@@ -3019,7 +3033,7 @@
     if(actionPlanList) actionPlanList.addEventListener("click",function(e){
       var btn=e.target.closest("[data-remove-corrective-action]"); if(!btn||btn.disabled||!canEditStep(r,3)) return;
       var idx=parseInt(btn.getAttribute("data-remove-corrective-action"),10); if(isNaN(idx)) return;
-      if(actionPlanState.actions.length<=1){toast("Keep at least one corrective action in the plan.","err");return;}
+      if(actionPlanState.actions.length<=1){toast("Keep at least one fix in the plan.","err");return;}
       syncCorrectiveActionStateFromUi(); actionPlanState.actions.splice(idx,1); renderCorrectiveActionPlan();
     });
     if(actionPlanList) actionPlanList.addEventListener("input",function(){ var req=detail.querySelector('[data-required="3"]'); if(req)req.classList.remove("show"); });
@@ -3027,9 +3041,9 @@
     if(multiActionCompletionEl) multiActionCompletionEl.addEventListener("click",async function(e){
       var btn=e.target.closest("[data-submit-child-completion]"); if(!btn||btn.disabled) return;
       var actionId=btn.getAttribute("data-submit-child-completion"), a=actionPlanState.actions.find(function(x){return String(x.id||"")===String(actionId||"");});
-      if(!a||!canCompleteCorrectiveAction(a)){toast("Only this corrective-action owner or an Admin/Safety Manager can submit the work.","err");return;}
+      if(!a||!canCompleteCorrectiveAction(a)){toast("Only the person doing this fix or an Admin/Safety Manager can send the work.","err");return;}
       var card=btn.closest("[data-child-completion-card]"), ta=card&&card.querySelector("[data-child-completion-note]"), note=ta?ta.value.trim():"";
-      if(!note){toast("Describe what was completed before submitting this action for verification.","err");if(ta)ta.focus();return;}
+      if(!note){toast("Say what was done before sending this fix for approval.","err");if(ta)ta.focus();return;}
       btn.disabled=true;
       try{
         await waitForActionEvidenceUpload(r.id,a.id);
@@ -3043,11 +3057,11 @@
         if(summary&&summary.open===0) setWizardStep(detail,r,5,true); else setWizardStep(detail,r,4,true);
         if(!verificationEmail || (!verificationEmail.sent&&!verificationEmail.skipped&&verificationEmail.ok===false)){
           console.error("action verification-request email failed",verificationEmail);
-          toast("Corrective Action #"+a.action_number+" was submitted, but the verification email could not be sent.","err");
+          toast("Fix #"+a.action_number+" was sent for approval, but the email could not be sent.","err");
         } else {
-          toast("Corrective Action #"+a.action_number+" submitted for verification","ok");
+          toast("Fix #"+a.action_number+" sent for approval","ok");
         }
-      }catch(ex){console.error(ex);toast("Could not submit this corrective action.","err");}
+      }catch(ex){console.error(ex);toast("Could not send this fix for approval.","err");}
       finally{if(btn.isConnected)btn.disabled=false;}
     });
 
@@ -3056,11 +3070,11 @@
       if(allVerifiedBtn){
         var finalSummary=syncCorrectiveActionSummary();
         if(!finalSummary||finalSummary.total<1||finalSummary.verified!==finalSummary.total){
-          toast("Every corrective action must be verified before continuing to Close.","err");
+          toast("Every fix must be approved before continuing to Close.","err");
           return;
         }
         setWizardStep(detail,r,6,true);
-        toast("All corrective actions verified — ready for final closure","ok");
+        toast("All fixes approved — ready to close","ok");
         return;
       }
 
@@ -3072,7 +3086,7 @@
       if(selfBtn){
         var selfId=selfBtn.getAttribute("data-child-verifier-self");
         var selfAction=actionPlanState.actions.find(function(x){return String(x.id||"")===String(selfId||"");});
-        if(!selfAction||!isManager()||!currentSession||!currentSession.user){toast("Only an Admin or Safety Manager can assign a verification owner.","err");return;}
+        if(!selfAction||!isManager()||!currentSession||!currentSession.user){toast("Only an Admin or Safety Manager can choose the approver.","err");return;}
         selfBtn.disabled=true;
         try{
           var selfWasAlreadyAssigned=String(selfAction.verifier_user_id||"")===String(currentSession.user.id||"");
@@ -3084,11 +3098,11 @@
           await loadNotifications(true);
           if(!selfEmail || (!selfEmail.sent&&!selfEmail.skipped&&selfEmail.ok===false)){
             console.error("action verifier-assignment email failed",selfEmail);
-            toast("Verification was assigned to you, but the email could not be sent.","err");
+            toast("You are now the approver, but the email could not be sent.","err");
           } else {
-            toast("Corrective Action #"+selfAction.action_number+" assigned to you for verification","ok");
+            toast("Fix #"+selfAction.action_number+" assigned to you to approve","ok");
           }
-        }catch(ex){console.error(ex);toast("Could not assign this verification to you.","err");}
+        }catch(ex){console.error(ex);toast("Could not make you the approver.","err");}
         finally{if(selfBtn.isConnected)selfBtn.disabled=false;}
         return;
       }
@@ -3096,7 +3110,7 @@
       if(saveBtn){
         var saveId=saveBtn.getAttribute("data-child-verifier-save");
         var saveAction=actionPlanState.actions.find(function(x){return String(x.id||"")===String(saveId||"");});
-        if(!saveAction||!isManager()){toast("Only an Admin or Safety Manager can assign a verification owner.","err");return;}
+        if(!saveAction||!isManager()){toast("Only an Admin or Safety Manager can choose the approver.","err");return;}
         var saveCard=saveBtn.closest("[data-child-verification-card]");
         var saveSelect=saveCard&&saveCard.querySelector("[data-child-verifier-select]");
         var nextVerifier=(saveSelect&&saveSelect.value)||null;
@@ -3113,11 +3127,11 @@
           await loadNotifications(true);
           if(!saveEmail || (!saveEmail.sent&&!saveEmail.skipped&&saveEmail.ok===false)){
             console.error("action verifier-assignment email failed",saveEmail);
-            toast("Verification owner was saved, but the assignment email could not be sent.","err");
+            toast("Approver saved, but the email could not be sent.","err");
           } else {
-            toast(nextVerifier?"Verification owner saved":"Verification returned to the shared queue","ok");
+            toast(nextVerifier?"Approver saved":"Any Admin or Safety Manager can now approve","ok");
           }
-        }catch(ex){console.error(ex);toast("Could not save the verification owner.","err");}
+        }catch(ex){console.error(ex);toast("Could not save the approver.","err");}
         finally{if(saveBtn.isConnected)saveBtn.disabled=false;}
         return;
       }
@@ -3125,7 +3139,7 @@
       if(verifyBtn){
         var verifyId=verifyBtn.getAttribute("data-child-verify-action");
         var verifyAction=actionPlanState.actions.find(function(x){return String(x.id||"")===String(verifyId||"");});
-        if(!verifyAction||!canVerifyCorrectiveAction(verifyAction)){toast("This corrective action is assigned to another reviewer or you do not have verification permission.","err");return;}
+        if(!verifyAction||!canVerifyCorrectiveAction(verifyAction)){toast("This fix is assigned to another approver, or your role cannot approve fixes.","err");return;}
         var verifyCard=verifyBtn.closest("[data-child-verification-card]");
         var verifyNoteEl=verifyCard&&verifyCard.querySelector("[data-child-verification-note]");
         var verifyNote=(verifyNoteEl&&verifyNoteEl.value.trim())||null;
@@ -3140,11 +3154,11 @@
           var verifySummary=correctiveActionSummary(r);
           setWizardStep(detail,r,5,true);
           if(verifySummary&&verifySummary.verified===verifySummary.total){
-            toast("Corrective Action #"+verifyAction.action_number+" verified — all corrective actions are verified","ok");
+            toast("Fix #"+verifyAction.action_number+" approved — all fixes are approved","ok");
           } else {
-            toast("Corrective Action #"+verifyAction.action_number+" verified","ok");
+            toast("Fix #"+verifyAction.action_number+" verified","ok");
           }
-        }catch(ex){console.error(ex);toast("Could not verify this corrective action.","err");}
+        }catch(ex){console.error(ex);toast("Could not approve this fix.","err");}
         finally{if(verifyBtn.isConnected)verifyBtn.disabled=false;}
         return;
       }
@@ -3152,14 +3166,14 @@
       if(changesBtn){
         var changesId=changesBtn.getAttribute("data-child-request-changes");
         var changesAction=actionPlanState.actions.find(function(x){return String(x.id||"")===String(changesId||"");});
-        if(!changesAction||!canVerifyCorrectiveAction(changesAction)){toast("This corrective action is assigned to another reviewer or you do not have verification permission.","err");return;}
+        if(!changesAction||!canVerifyCorrectiveAction(changesAction)){toast("This fix is assigned to another approver, or your role cannot approve fixes.","err");return;}
         var changesCard=changesBtn.closest("[data-child-verification-card]");
         var changesNoteEl=changesCard&&changesCard.querySelector("[data-child-verification-note]");
         var changesNote=(changesNoteEl&&changesNoteEl.value.trim())||"";
         var changesReq=changesCard&&changesCard.querySelector("[data-child-verification-required]");
         if(!changesNote){
           if(changesReq) changesReq.classList.add("show");
-          toast("Explain what still needs to be changed before sending this action back.","err");
+          toast("Say what still needs to be done before sending this fix back.","err");
           if(changesNoteEl) changesNoteEl.focus();
           return;
         }
@@ -3177,19 +3191,19 @@
           setWizardStep(detail,r,4,true);
           if(!changesEmail || (!changesEmail.sent&&!changesEmail.skipped&&changesEmail.ok===false)){
             console.error("action changes-requested email failed",changesEmail);
-            toast("Changes were requested for Corrective Action #"+changesAction.action_number+", but the owner email could not be sent.","err");
+            toast("Sent back for changes: Fix #"+changesAction.action_number+", but the email could not be sent.","err");
           } else {
-            toast("Changes requested for Corrective Action #"+changesAction.action_number,"ok");
+            toast("Sent back for changes: Fix #"+changesAction.action_number,"ok");
           }
-        }catch(ex){console.error(ex);toast("Could not request changes for this corrective action.","err");}
+        }catch(ex){console.error(ex);toast("Could not send this fix back.","err");}
         finally{if(changesBtn.isConnected)changesBtn.disabled=false;}
       }
     });
 
-    loadCorrectiveActionPlan().catch(function(ex){console.error("corrective action plan load",ex);actionPlanState.loading=false;if(actionPlanList)actionPlanList.innerHTML='<div class="wizard-required show">Could not load the corrective-action plan. Refresh the record and try again.</div>';if(actionPlanAdd)actionPlanAdd.disabled=true;if(actionPlanSave)actionPlanSave.disabled=true;});
+    loadCorrectiveActionPlan().catch(function(ex){console.error("corrective action plan load",ex);actionPlanState.loading=false;if(actionPlanList)actionPlanList.innerHTML='<div class="wizard-required show">Could not load the fix plan. Refresh the page and try again.</div>';if(actionPlanAdd)actionPlanAdd.disabled=true;if(actionPlanSave)actionPlanSave.disabled=true;});
 
-    if(rootSave) rootSave.addEventListener("click",async function(){ rootSave.disabled=true; try{await persistRootCause(true);rootSaved.hidden=false;setTimeout(function(){rootSaved.hidden=true;},2200);showView("home");}catch(ex){console.error(ex);toast("Could not save the investigation.","err");}finally{rootSave.disabled=!canEditStep(r,2);} });
-    if(actionPlanSave) actionPlanSave.addEventListener("click",async function(){ actionPlanSave.disabled=true; try{await persistActionPlan(true,false);actionPlanSaved.hidden=false;setTimeout(function(){actionPlanSaved.hidden=true;},2200);showView("home");}catch(ex){console.error(ex);if(ex&&ex.message!=="PLAN_DESCRIPTION_REQUIRED")toast("Could not save the action plan.","err");}finally{actionPlanSave.disabled=!canEditStep(r,3);} });
+    if(rootSave) rootSave.addEventListener("click",async function(){ rootSave.disabled=true; try{await persistRootCause(true);rootSaved.hidden=false;setTimeout(function(){rootSaved.hidden=true;},2200);showView("home");}catch(ex){console.error(ex);toast("Could not save the cause.","err");}finally{rootSave.disabled=!canEditStep(r,2);} });
+    if(actionPlanSave) actionPlanSave.addEventListener("click",async function(){ actionPlanSave.disabled=true; try{await persistActionPlan(true,false);actionPlanSaved.hidden=false;setTimeout(function(){actionPlanSaved.hidden=true;},2200);showView("home");}catch(ex){console.error(ex);if(ex&&ex.message!=="PLAN_DESCRIPTION_REQUIRED")toast("Could not save the fix plan.","err");}finally{actionPlanSave.disabled=!canEditStep(r,3);} });
 
     detail.addEventListener("click",async function(e){
       if(e.target.closest("[data-reg-review-jump]")){ setWizardStep(detail,r,1,true); return; }
@@ -3207,42 +3221,42 @@
     });
 
     var complete1=detail.querySelector('[data-step-complete="1"]'); if(complete1) complete1.addEventListener("click",async function(){
-      if(!canEditStep(r,1)){toast("Only the assigned investigator or an Admin/Safety Manager can complete Review.","err");return;} complete1.disabled=true;
+      if(!canEditStep(r,1)){toast("Only the case owner or an Admin/Safety Manager can finish Review.","err");return;} complete1.disabled=true;
       try{
         if(isManager() && investigatorSelect) await persistInvestigator(investigatorSelect.value||null,false);
         if(r.involves_injury){
           if(canVerify()){
             if(!(await persistRegulatoryReview(false))) return;
           } else if(["yes","no","pending"].indexOf(String(r.calosha_screening_status||""))<0){
-            toast("An Admin or Safety Manager must complete the regulatory screening before this injury review can advance.","err"); return;
+            toast("An Admin or Safety Manager must answer the Cal/OSHA question before this injury report can move on.","err"); return;
           }
         }
         if(r.status==="new") await updateStatus(r.id,"under_review",wrap,activeReopenStep(r)?2:null);
         else if(activeReopenStep(r)===1) await updateStatus(r.id,r.status,wrap,2);
-        refreshRecordWorkflow(r,detail); setWizardStep(detail,r,2,true); loadAudit(r.id,auditEl); toast("Review complete — continue to Investigation","ok");
+        refreshRecordWorkflow(r,detail); setWizardStep(detail,r,2,true); loadAudit(r.id,auditEl); toast("Review finished — now find the cause","ok");
       }
       catch(ex){console.error(ex);toast("Could not complete the review.","err");} finally{if(complete1.isConnected)complete1.disabled=!canEditStep(r,1);} });
 
     var complete2=detail.querySelector('[data-step-complete="2"]'); if(complete2) complete2.addEventListener("click",async function(){
-      if(!canEditStep(r,2)){toast("Only the assigned investigator or an Admin/Safety Manager can complete Investigation.","err");return;}
-      var req=detail.querySelector('[data-required="2"]'); if(!invRoot.value.trim()){if(req)req.classList.add("show");toast("Add the root cause before completing Investigation.","err");return;} if(req)req.classList.remove("show"); complete2.disabled=true;
-      try{await persistRootCause(false,true);setWizardStep(detail,r,3,true);toast("Investigation complete — build the corrective action plan","ok");}catch(ex){console.error(ex);toast("Could not complete Investigation.","err");}finally{if(complete2.isConnected)complete2.disabled=!canEditStep(r,2);} });
+      if(!canEditStep(r,2)){toast("Only the case owner or an Admin/Safety Manager can finish this step.","err");return;}
+      var req=detail.querySelector('[data-required="2"]'); if(!invRoot.value.trim()){if(req)req.classList.add("show");toast("Write down why it happened before continuing.","err");return;} if(req)req.classList.remove("show"); complete2.disabled=true;
+      try{await persistRootCause(false,true);setWizardStep(detail,r,3,true);toast("Cause saved — now plan the fix","ok");}catch(ex){console.error(ex);toast("Could not finish this step.","err");}finally{if(complete2.isConnected)complete2.disabled=!canEditStep(r,2);} });
 
     var complete3=detail.querySelector('[data-step-complete="3"]'); if(complete3) complete3.addEventListener("click",async function(){
-      if(!canEditStep(r,3)){toast("Only the assigned investigator or an Admin/Safety Manager can assign the corrective actions.","err");return;}
-      if(actionPlanState.loading){toast("The corrective-action plan is still loading.","err");return;}
+      if(!canEditStep(r,3)){toast("Only the case owner or an Admin/Safety Manager can assign the fixes.","err");return;}
+      if(actionPlanState.loading){toast("The fix plan is still loading.","err");return;}
       var miss=validateCorrectiveActionPlan(true), req=detail.querySelector('[data-required="3"]');
-      if(miss.length){if(req){req.textContent="Still required: "+miss.join(", ")+".";req.classList.add("show");}toast("Complete the required fields for every corrective action first.","err");return;} if(req)req.classList.remove("show"); complete3.disabled=true;
+      if(miss.length){if(req){req.textContent="Still required: "+miss.join(", ")+".";req.classList.add("show");}toast("Fill in the required boxes for every fix first.","err");return;} if(req)req.classList.remove("show"); complete3.disabled=true;
       try{
         var result=await persistActionPlan(false,true);
         renderActionWorkflow(r,detail.querySelector("[data-action-completion]"),auditEl,detail,"complete");
         renderActionWorkflow(r,detail.querySelector("[data-action-verification]"),auditEl,detail,"verify");
         setWizardStep(detail,r,4,true);
         var emails=(result&&result.emailResults)||[], failed=emails.filter(function(x){return !x || (!x.sent&&!x.skipped);}), unavailable=emails.filter(function(x){return x&&x.skipped&&(x.reason==="NO_DASHBOARD_ASSIGNEE"||x.reason==="NO_ASSIGNEE_EMAIL");});
-        if(failed.length){console.error("multi-action assignment notification failures",failed);toast("Actions assigned, but "+failed.length+" email notification"+(failed.length===1?"":"s")+" could not be sent.","err");}
-        else if(unavailable.length){toast("Actions assigned. "+unavailable.length+" owner"+(unavailable.length===1?" has":"s have")+" no available assignment email.","ok");}
-        else toast("Corrective actions assigned — owner notifications sent","ok");
-      }catch(ex){console.error(ex);if(ex&&ex.message!=="PLAN_INCOMPLETE")toast("Could not assign the corrective actions.","err");}finally{if(complete3.isConnected)complete3.disabled=!canEditStep(r,3);} });
+        if(failed.length){console.error("multi-action assignment notification failures",failed);toast("Fixes assigned, but "+failed.length+" email"+(failed.length===1?"":"s")+" could not be sent.","err");}
+        else if(unavailable.length){toast("Fixes assigned. "+unavailable.length+" "+(unavailable.length===1?"person has":"people have")+" no email on file.","ok");}
+        else toast("Fixes assigned — the people doing them were notified","ok");
+      }catch(ex){console.error(ex);if(ex&&ex.message!=="PLAN_INCOMPLETE")toast("Could not assign the fixes.","err");}finally{if(complete3.isConnected)complete3.disabled=!canEditStep(r,3);} });
 
     renderActionWorkflow(r,detail.querySelector("[data-action-completion]"),auditEl,detail,"complete");
     renderActionWorkflow(r,detail.querySelector("[data-action-verification]"),auditEl,detail,"verify");
@@ -3286,9 +3300,9 @@
 
   var DISPOSITION_LABELS={no_issue:"No issue found",informational:"Informational only",not_safety:"Not safety-related",duplicate:"Duplicate report",other:"Other"};
   function openDispositionModal(r, wrap, notesEl, presetStatus){
-    if(!r || !canVerify()){ toast("Only an Admin or Safety Manager can close a report without corrective action.","err"); return; }
+    if(!r || !canVerify()){ toast("Only an Admin or Safety Manager can close a report with no fix.","err"); return; }
     dispositionReport=r; dispositionWrap=wrap; dispositionNotesEl=notesEl;
-    $("dHeading").textContent="Close report #"+r.ref_no+" — no corrective action";
+    $("dHeading").textContent="Close report #"+r.ref_no+" — no fix needed";
     $("dReason").value=(presetStatus==="duplicate"?"duplicate":"no_issue");
     $("dNote").value=""; $("dErr").classList.remove("show");
     $("dispositionBackdrop").classList.add("open");
@@ -3303,7 +3317,7 @@
   document.addEventListener("keydown",function(e){ if(e.key==="Escape" && $("dispositionBackdrop").classList.contains("open")) closeDispositionModal(); });
   $("dSave").addEventListener("click",async function(){
     if(!dispositionReport) return;
-    if(!canVerify()){ toast("Only an Admin or Safety Manager can close a report without corrective action.","err"); closeDispositionModal(); return; }
+    if(!canVerify()){ toast("Only an Admin or Safety Manager can close a report with no fix.","err"); closeDispositionModal(); return; }
     var reason=$("dReason").value, note=$("dNote").value.trim(), err=$("dErr");
     if(!reason){ err.textContent="Choose a closure reason."; err.classList.add("show"); return; }
     if(reason==="other" && !note){ err.textContent="Add a short closure note when using Other."; err.classList.add("show"); return; }
@@ -3311,25 +3325,25 @@
     var btn=$("dSave"); btn.disabled=true; btn.textContent="Closing…";
     try{
       var status=(reason==="duplicate"?"duplicate":"no_action");
-      var label=DISPOSITION_LABELS[reason]||"No corrective action required";
+      var label=DISPOSITION_LABELS[reason]||"No fix needed";
       var sess=(await sb.auth.getSession()).data.session; var email=(sess&&sess.user)?sess.user.email:null;
-      var body=note||"Reviewed and closed without corrective action.";
-      var ins=await sb.from("report_notes").insert({report_id:dispositionReport.id,organization_id:dispositionReport.organization_id||currentOrgId,title:"Closed without corrective action — "+label,body:body,author_email:email});
+      var body=note||"Reviewed and closed — no fix needed.";
+      var ins=await sb.from("report_notes").insert({report_id:dispositionReport.id,organization_id:dispositionReport.organization_id||currentOrgId,title:"Closed — no fix needed — "+label,body:body,author_email:email});
       if(ins.error) throw ins.error;
       var rid=dispositionReport.id, notesEl=dispositionNotesEl, wrap=dispositionWrap;
       await updateStatus(rid,status,wrap);
       closeDispositionModal();
       if(notesEl) loadNotes(rid,notesEl);
       applyFilters(); renderActions(); renderMyWork(); renderHomeSnapshot();
-      toast("Report closed — no corrective action required","ok");
+      toast("Report closed — no fix needed","ok");
     }catch(ex){ console.error(ex); err.textContent="Could not close the report. Please try again."; err.classList.add("show"); }
     finally{ btn.disabled=false; btn.textContent="Close report"; }
   });
 
   function openReopenModal(r, returnView){
-    if(!r || !canReopenReport(r)){ toast("Only an Admin or Safety Manager can reopen a resolved record.","err"); return; }
+    if(!r || !canReopenReport(r)){ toast("Only an Admin or Safety Manager can reopen a closed report.","err"); return; }
     reopenReport=r; reopenReturnView=returnView||lastOperationalView||"records";
-    $("reopenHeading").textContent="Reopen record — Report #"+r.ref_no;
+    $("reopenHeading").textContent="Reopen report #"+r.ref_no;
     $("reopenReason").value=""; $("reopenNote").value=""; $("reopenErr").classList.remove("show");
     $("reopenBackdrop").classList.add("open");
     setTimeout(function(){ $("reopenReason").focus(); },40);
@@ -3342,10 +3356,10 @@
   document.addEventListener("keydown",function(e){ if(e.key==="Escape" && $("reopenBackdrop").classList.contains("open")) closeReopenModal(); });
   $("reopenSave").addEventListener("click",async function(){
     if(!reopenReport) return;
-    if(!canReopenReport(reopenReport)){ toast("This record can no longer be reopened.","err"); closeReopenModal(); return; }
+    if(!canReopenReport(reopenReport)){ toast("This report can no longer be reopened.","err"); closeReopenModal(); return; }
     var code=$("reopenReason").value, note=$("reopenNote").value.trim(), err=$("reopenErr");
-    if(!code){ err.textContent="Choose a reason for reopening the record."; err.classList.add("show"); return; }
-    if(!note){ err.textContent="Add a short explanation so the reopen action is documented."; err.classList.add("show"); return; }
+    if(!code){ err.textContent="Choose why the report is being reopened."; err.classList.add("show"); return; }
+    if(!note){ err.textContent="Add a short explanation so the reason is saved."; err.classList.add("show"); return; }
     err.classList.remove("show");
     var btn=$("reopenSave"); btn.disabled=true; var old=btn.textContent; btn.textContent="Reopening…";
     var rid=reopenReport.id, backView=reopenReturnView;
@@ -3356,17 +3370,17 @@
       await loadReports();
       var fresh=allReports.find(function(x){return String(x.id)===String(rid);});
       if(fresh){ openIncident(fresh,backView); } else { showView(backView||"records"); }
-      toast("Record reopened at Step 1 — prior information carried forward","ok");
+      toast("Report reopened at Step 1 — earlier answers kept","ok");
     }catch(ex){
       console.error(ex);
-      err.textContent=(ex&&ex.message)?ex.message:"Could not reopen the record. Please try again."; err.classList.add("show");
+      err.textContent=(ex&&ex.message)?ex.message:"Could not reopen the report. Try again."; err.classList.add("show");
     }finally{ btn.disabled=false; btn.textContent=old; }
   });
 
   function openRestartModal(r, returnView){
-    if(!r || !canRestartWorkflow(r)){ toast("Only an Admin or Safety Manager can restart an open workflow that has progressed beyond the initial report.","err"); return; }
+    if(!r || !canRestartWorkflow(r)){ toast("Only an Admin or Safety Manager can start the steps over.","err"); return; }
     restartReport=r; restartReturnView=returnView||lastOperationalView||"records";
-    $("rHeading").textContent="Restart workflow — Report #"+r.ref_no;
+    $("rHeading").textContent="Start steps over — Report #"+r.ref_no;
     $("rReason").value=""; $("rNote").value=""; $("rErr").classList.remove("show");
     $("restartBackdrop").classList.add("open");
     setTimeout(function(){ $("rReason").focus(); },40);
@@ -3379,10 +3393,10 @@
   document.addEventListener("keydown",function(e){ if(e.key==="Escape" && $("restartBackdrop").classList.contains("open")) closeRestartModal(); });
   $("rSave").addEventListener("click",async function(){
     if(!restartReport) return;
-    if(!canRestartWorkflow(restartReport)){ toast("This workflow can no longer be restarted.","err"); closeRestartModal(); return; }
+    if(!canRestartWorkflow(restartReport)){ toast("The steps can no longer be started over.","err"); closeRestartModal(); return; }
     var code=$("rReason").value, note=$("rNote").value.trim(), err=$("rErr");
-    if(!code){ err.textContent="Choose a reason for the restart."; err.classList.add("show"); return; }
-    if(!note){ err.textContent="Add a short explanation so the restart is documented."; err.classList.add("show"); return; }
+    if(!code){ err.textContent="Choose why the steps are starting over."; err.classList.add("show"); return; }
+    if(!note){ err.textContent="Add a short explanation so the reason is saved."; err.classList.add("show"); return; }
     err.classList.remove("show");
     var btn=$("rSave"); btn.disabled=true; var old=btn.textContent; btn.textContent="Restarting…";
     var rid=restartReport.id, backView=restartReturnView;
@@ -3394,10 +3408,10 @@
       var fresh=allReports.find(function(x){return String(x.id)===String(rid);});
       if(fresh){ openIncident(fresh,backView); }
       else { showView(backView||"records"); }
-      toast("Workflow restarted — returned to Step 1","ok");
+      toast("Steps started over — back at Step 1","ok");
     }catch(ex){
       console.error(ex);
-      err.textContent=(ex&&ex.message)?ex.message:"Could not restart the workflow. Please try again."; err.classList.add("show");
+      err.textContent=(ex&&ex.message)?ex.message:"Could not start the steps over. Try again."; err.classList.add("show");
     }finally{ btn.disabled=false; btn.textContent=old; }
   });
 
@@ -3439,30 +3453,30 @@
       actionAudits.forEach(function(a){
         var oldS=a.old_snapshot||{}, newS=a.new_snapshot||{};
         var oldStatus=String(oldS.status||""), newStatus=String(newS.status||"");
-        var title="Corrective Action #"+String(a.action_number||"")+" updated";
+        var title="Fix #"+String(a.action_number||"")+" updated";
         var detail="";
-        if(a.event_type==="created") title="Corrective Action #"+String(a.action_number||"")+" created";
-        else if(a.event_type==="retired") title="Corrective Action #"+String(a.action_number||"")+" retired";
-        else if(a.event_type==="restored") title="Corrective Action #"+String(a.action_number||"")+" restored";
+        if(a.event_type==="created") title="Fix #"+String(a.action_number||"")+" created";
+        else if(a.event_type==="retired") title="Fix #"+String(a.action_number||"")+" retired";
+        else if(a.event_type==="restored") title="Fix #"+String(a.action_number||"")+" restored";
         else if(oldStatus!==newStatus){
-          if(newStatus==="awaiting_verification") title="Corrective Action #"+String(a.action_number||"")+" submitted for verification";
-          else if(newStatus==="verified") title="Corrective Action #"+String(a.action_number||"")+" verified";
-          else if(newStatus==="changes_requested") title="Changes requested for Corrective Action #"+String(a.action_number||"");
-          else if(newStatus==="not_started"&&oldStatus) title="Corrective Action #"+String(a.action_number||"")+" reset for current workflow";
-          else title="Corrective Action #"+String(a.action_number||"")+" status changed to "+actionLabel(newStatus);
+          if(newStatus==="awaiting_verification") title="Fix #"+String(a.action_number||"")+" sent for approval";
+          else if(newStatus==="verified") title="Fix #"+String(a.action_number||"")+" verified";
+          else if(newStatus==="changes_requested") title="Sent back for changes: Fix #"+String(a.action_number||"");
+          else if(newStatus==="not_started"&&oldStatus) title="Fix #"+String(a.action_number||"")+" reset for this round";
+          else title="Fix #"+String(a.action_number||"")+" status changed to "+actionLabel(newStatus);
         } else if(String(oldS.owner_user_id||"")!==String(newS.owner_user_id||"")){
-          title="Corrective Action #"+String(a.action_number||"")+" owner updated";
+          title="Fix #"+String(a.action_number||"")+" owner updated";
         } else if(String(oldS.verifier_user_id||"")!==String(newS.verifier_user_id||"")){
-          title="Corrective Action #"+String(a.action_number||"")+" verification owner updated";
+          title="Fix #"+String(a.action_number||"")+" approver updated";
         } else if(String(oldS.completion_note||"")!==String(newS.completion_note||"")){
-          title="Corrective Action #"+String(a.action_number||"")+" completion updated";
+          title="Fix #"+String(a.action_number||"")+" completion updated";
         } else if(
           String(oldS.description||"")!==String(newS.description||"") ||
           String(oldS.control_type||"")!==String(newS.control_type||"") ||
           String(oldS.due_date||"")!==String(newS.due_date||"") ||
           String(oldS.priority||"")!==String(newS.priority||"")
         ){
-          title="Corrective Action #"+String(a.action_number||"")+" plan updated";
+          title="Fix #"+String(a.action_number||"")+" plan updated";
         }
         if(newS.description) detail=String(newS.description);
         events.push({
@@ -3506,8 +3520,8 @@
     if(!title){ err.textContent="Please enter a title for the note."; err.classList.add("show"); return; }
     err.classList.remove("show");
     var resolvedNote=isResolvedReport(modalReport);
-    if(!resolvedNote && $("mStatus").value==="closed" && !canClose(modalReport)){ err.textContent="To close a report, document the root cause and corrective action, then complete and verify the corrective action."; err.classList.add("show"); return; }
-    if(!resolvedNote && ($("mStatus").value==="no_action" || $("mStatus").value==="duplicate")){ err.textContent="Use Close without corrective action in the Incident workspace so the closure reason is documented."; err.classList.add("show"); return; }
+    if(!resolvedNote && $("mStatus").value==="closed" && !canClose(modalReport)){ err.textContent="To close a report, write down why it happened and plan the fix, then finish and approve the fix."; err.classList.add("show"); return; }
+    if(!resolvedNote && ($("mStatus").value==="no_action" || $("mStatus").value==="duplicate")){ err.textContent="Use Close — no fix needed on the report so the reason is saved."; err.classList.add("show"); return; }
     var btn=$("mSave"); btn.disabled=true; btn.textContent="Saving…";
     try{
       var sess=(await sb.auth.getSession()).data.session; var email=(sess&&sess.user)?sess.user.email:null;
@@ -4531,11 +4545,11 @@
   /* ================= Phase 2 workspaces ================= */
   var lastOperationalView="records";
   var ROLE_LABELS={admin:"Admin",safety_manager:"Safety Manager",supervisor:"Supervisor",read_only:"Read Only"};
-  var ACTION_LABELS={not_started:"Not started",in_progress:"In progress",awaiting_verification:"Awaiting verification",verified:"Verified",changes_requested:"Changes requested"};
+  var ACTION_LABELS={not_started:"Not started",in_progress:"In progress",awaiting_verification:"Waiting for approval",verified:"Approved",changes_requested:"Sent back for changes"};
 
   function roleLabel(v){ return ROLE_LABELS[v]||"Read Only"; }
   function actionLabel(v){ return ACTION_LABELS[v]||"Not started"; }
-  var CONTROL_TYPE_LABELS={elimination:"Elimination",substitution:"Substitution",engineering:"Engineering control",administrative:"Administrative / work practice",ppe:"PPE",other:"Other"};
+  var CONTROL_TYPE_LABELS={elimination:"Remove the hazard (elimination)",substitution:"Swap for something safer (substitution)",engineering:"Guard or barrier (engineering control)",administrative:"New rule or training (administrative)",ppe:"Safety gear (PPE)",other:"Other"};
   var CONTROL_TYPE_LABELS_ES={elimination:"Eliminación",substitution:"Sustitución",engineering:"Control de ingeniería",administrative:"Administrativo / práctica de trabajo",ppe:"EPP",other:"Otro"};
   function controlTypeLabel(v,lang){ var map=normalizeLanguageCode(lang||"en")==="es"?CONTROL_TYPE_LABELS_ES:CONTROL_TYPE_LABELS; return map[v]||""; }
   function profileName(p){ return p?(p.full_name||p.email||"User"):""; }
@@ -4605,7 +4619,7 @@
     if(myWorkNav) myWorkNav.style.display=(canOwnWork?"":"none");
     var hot=$("homeOpenTitle"), hod=$("homeOpenDesc");
     if(hot) hot.textContent=canOwnWork?"Open My Work":"Open Safety Inbox";
-    if(hod) hod.textContent=canOwnWork?"See investigations, corrective actions, and verification reviews that need your attention.":"Review reports and safety activity.";
+    if(hod) hod.textContent=canOwnWork?"See the cases, fixes and approvals that need you.":"Review reports and safety activity.";
     var note=$("adminPermissionNote");
     var afs=$("adminFeedbackSection"); if(afs) afs.hidden=true;
     var hc=$("platformContextLabel"); if(hc) hc.textContent=currentOrgName?("Current company: "+currentOrgName):"Platform overview";
@@ -4645,13 +4659,13 @@
     if(r.involves_injury){
       var screen=String(r.calosha_screening_status||"");
       if(screen==="pending" || screen==="yes" || screen==="no") return "";
-      return '<div class="ops-alert critical calosha-screen"><b>Injury report — regulatory screening required</b>'+
+      return '<div class="ops-alert critical calosha-screen"><b>Injury report — answer the Cal/OSHA question</b>'+
         '<div class="calosha-screen-copy">Review promptly. If the event involved or may involve any of the following, notify RBH management immediately: inpatient hospitalization other than medical observation or diagnostic testing; amputation; loss of an eye; serious permanent disfigurement; or death.</div>'+
         '<div class="calosha-screen-copy"><strong>California timing:</strong> qualifying serious injuries, illnesses, and deaths must be reported to Cal/OSHA immediately — as soon as practically possible and ordinarily no later than 8 hours after the employer knows, or with diligent inquiry would have known, of the event. Section 342 contains a limited exigent-circumstances exception. This screen is a prompt only; it does not make the legal determination or submit the report.</div>'+
         '<a class="calosha-link" href="https://www.dir.ca.gov/dosh/report-accident-or-injury.html" target="_blank" rel="noopener">Open official Cal/OSHA reporting instructions ↗</a>'+
       '</div>';
     }
-    return '<div class="ops-alert critical"><b>Priority triage</b>Higher-potential event — prioritize review, assignment, and corrective action.</div>';
+    return '<div class="ops-alert critical"><b>High priority</b>This could have been serious. Review it, assign it and plan the fix first.</div>';
   }
   function reportAttentionRank(r){
     var n=0; if(r.involves_injury) n+=100; if(isOverdue(r)) n+=80;
@@ -4677,9 +4691,9 @@
   function openIncident(r, from){
     if(!r) return; activeIncident=r; activeIncidentLanguage=preferredReadingLanguage(); lastOperationalView=from||((document.getElementById('view-mywork')&&!document.getElementById('view-mywork').hidden)?'mywork':((document.getElementById('view-actions')&&!document.getElementById('view-actions').hidden)?'actions':'records'));
     storeIncident(r,lastOperationalView);
-    var back=$("incidentBack"); if(back) back.textContent=lastOperationalView==="mywork"?"← Back to My Work":(lastOperationalView==="actions"?"← Back to Corrective Actions":"← Back to Safety Inbox");
+    var back=$("incidentBack"); if(back) back.textContent=lastOperationalView==="mywork"?"← Back to My Work":(lastOperationalView==="actions"?"← Back to Fixes":"← Back to Safety Inbox");
     $("incidentTitle").textContent="#"+(r.ref_no||r.id)+" · "+(r.report_type||"Safety report");
-    var meta=[]; if(r.job_site) meta.push(r.job_site); if(investigatorName(r)) meta.push("Investigator: "+investigatorName(r)); if(assigneeName(r)) meta.push("Action owner: "+assigneeName(r)); if(verifierName(r)) meta.push("Verifier: "+verifierName(r)); meta.push(fmtDate(r.created_at)); $("incidentMeta").textContent=meta.join(" · ");
+    var meta=[]; if(r.job_site) meta.push(r.job_site); if(investigatorName(r)) meta.push("Investigator: "+investigatorName(r)); if(assigneeName(r)) meta.push("Fix by: "+assigneeName(r)); if(verifierName(r)) meta.push("Approver: "+verifierName(r)); meta.push(fmtDate(r.created_at)); $("incidentMeta").textContent=meta.join(" · ");
     $("incidentSummary").innerHTML='<div class="is-badges">'+incidentBadgeHtml(r)+'</div><div class="is-desc">'+esc(r.description||"No description provided.")+'</div>';
     var langSel=$("incidentLanguage"); if(langSel){ langSel.value=activeIncidentLanguage; }
     setIncidentLanguageState(r,activeIncidentLanguage,"loading");
@@ -4741,7 +4755,7 @@
     var verifier=a.verifier_user_id&&profileById[String(a.verifier_user_id)]?profileName(profileById[String(a.verifier_user_id)]):"Shared Admin / Safety Manager queue";
     var info=escalationInfo(a), status=String(a.status||"not_started");
     var label=mode==="verify"
-      ? (a.verifier_user_id?"Verification · "+verifier:"Verification · shared queue")
+      ? (a.verifier_user_id?"Approval · "+verifier:"Approval · any Admin or Safety Manager")
       : (status==="changes_requested"?"Changes requested":actionLabel(status));
     var meta=mode==="verify"
       ? "Owner: "+owner+" · Reviewer: "+verifier
@@ -4750,12 +4764,12 @@
       ? (a.completed_at?"Submitted "+shortDate(a.completed_at):"Ready for review")
       : (a.due_date?shortDate(a.due_date):"No due date");
     b.innerHTML=
-      '<div class="task-title">#'+esc(r&&r.ref_no)+' · Action #'+esc(a.action_number||"")+' · '+esc((r&&r.report_type)||"Report")+
+      '<div class="task-title">#'+esc(r&&r.ref_no)+' · Fix #'+esc(a.action_number||"")+' · '+esc((r&&r.report_type)||"Report")+
         '<span class="task-state">'+esc(label)+'</span></div>'+
-      '<div class="task-action">'+esc(a.description||"Corrective action")+'</div>'+
+      '<div class="task-action">'+esc(a.description||"Fix")+'</div>'+
       '<div class="task-meta">'+esc(meta)+'</div>'+
       '<div class="task-due"><b class="due-signal '+(mode==="verify"?"":esc(info.cls))+'">'+
-        esc(mode==="verify"?"Ready for verification":info.label)+'</b><span>'+esc(due)+'</span></div>';
+        esc(mode==="verify"?"Ready to approve":info.label)+'</b><span>'+esc(due)+'</span></div>';
     b.addEventListener("click",function(){ if(r) openIncident(r,"mywork"); });
     return b;
   }
@@ -4791,11 +4805,11 @@
     var nm=currentProfile?profileName(currentProfile):((user&&user.email)||'');
     if(ng) ng.textContent=nm?('Work for '+nm):'Your work queue';
     if(br){
-      if(assignedReviews) br.textContent=assignedReviews+' verification review'+(assignedReviews===1?'':'s')+' assigned to you '+(assignedReviews===1?'is':'are')+' waiting.';
+      if(assignedReviews) br.textContent=assignedReviews+' fix'+(assignedReviews===1?'':'es')+' waiting for your approval '+(assignedReviews===1?'is':'are')+' waiting.';
       else if(investigations.length) br.textContent=investigations.length+' investigation'+(investigations.length===1?'':'s')+' currently need'+(investigations.length===1?'s':'')+' your attention.';
-      else if(actions.length) br.textContent='Start with overdue, changes-requested, or due-soon corrective actions first.';
-      else if(sharedReviews&&isManager()) br.textContent=sharedReviews+' shared verification review'+(sharedReviews===1?' is':'s are')+' ready to be picked up.';
-      else br.textContent='Your assigned investigations, corrective actions, and verification reviews will appear here.';
+      else if(actions.length) br.textContent='Start with fixes that are overdue, sent back, or due soon.';
+      else if(sharedReviews&&isManager()) br.textContent=sharedReviews+' fix'+(sharedReviews===1?' is':'es are')+' waiting for any Admin or Safety Manager to approve.';
+      else br.textContent='Cases, fixes and approvals assigned to you will show up here.';
     }
     if(role) role.textContent=roleLabel(currentRole);
 
@@ -4808,7 +4822,7 @@
     if(panel) panel.classList.toggle('show',isManager());
     if(reviewList&&isManager()){
       reviewList.innerHTML='';
-      if(!reviews.length) reviewList.innerHTML='<div class="state">Nothing is waiting for verification.</div>';
+      if(!reviews.length) reviewList.innerHTML='<div class="state">Nothing is waiting for approval.</div>';
       else reviews.forEach(function(a){reviewList.appendChild(childWorkCard(a,'verify'));});
     }
 
@@ -4859,7 +4873,7 @@
       if(currentUserId()&&String(a.owner_user_id||"")===currentUserId()) mine++;
     });
     function s(n,l){ return '<div class="action-stat"><b>'+n+'</b><span>'+l+'</span></div>'; }
-    el.innerHTML=s(overdue,"Overdue")+s(soon,"Due in 3 days")+s(verify,"Awaiting verification")+s(mine,"Assigned to me");
+    el.innerHTML=s(overdue,"Overdue")+s(soon,"Due in 3 days")+s(verify,"Waiting for approval")+s(mine,"Assigned to me");
   }
   function renderActions(){
     var el=$("actionList"), count=$("actionCount"); if(!el) return;
@@ -4878,7 +4892,7 @@
     });
 
     renderActionSummary(arr);
-    if(count) count.textContent=arr.length+(arr.length===1?' open action':' open actions');
+    if(count) count.textContent=arr.length+(arr.length===1?' open fix':' open fixes');
 
     var nav=$("navActionCount");
     if(nav){
@@ -4887,7 +4901,7 @@
     }
 
     if(!arr.length){
-      el.innerHTML='<div class="state">No open corrective actions.</div>';
+      el.innerHTML='<div class="state">No open fixes.</div>';
       return;
     }
 
@@ -4906,9 +4920,9 @@
       var reportType=r.report_type||'Report';
 
       b.innerHTML=
-        '<div class="task-title">#'+esc(r.ref_no)+' · Action #'+esc(a.action_number||"")+' · '+esc(reportType)+
+        '<div class="task-title">#'+esc(r.ref_no)+' · Fix #'+esc(a.action_number||"")+' · '+esc(reportType)+
           '<span class="task-state ca-status-'+esc(String(a.status||"not_started"))+'">'+esc(actionLabel(a.status||"not_started"))+'</span></div>'+
-        '<div class="task-action">'+esc(a.description||'Corrective action needs to be documented.')+'</div>'+
+        '<div class="task-action">'+esc(a.description||'Fix still needs to be written down.')+'</div>'+
         '<div class="task-meta">Assigned: <span class="assignment-name">'+esc(assignee)+'</span>'+
           (r.job_site?' · '+esc(r.job_site):'')+'</div>'+
         '<div class="task-due"><b class="due-signal '+escInfo.cls+'">'+esc(escInfo.label)+'</b><span>'+
@@ -4920,7 +4934,7 @@
   }
 
   /* ================= App shell: navigation, home, users ================= */
-  var PAGE_TITLES={home:"Home",mywork:"My Work",records:"Safety Inbox",actions:"Corrective Actions",metrics:"Analytics",users:"Admin",incident:"Incident"};
+  var PAGE_TITLES={home:"Home",mywork:"My Work",records:"Safety Inbox",actions:"Fixes",metrics:"Analytics",users:"Admin",incident:"Report"};
   var sidebarEl=document.getElementById("sidebar"), sbBackdrop=document.getElementById("sbBackdrop");
   function openSidebar(){ if(sidebarEl) sidebarEl.classList.add("open"); if(sbBackdrop) sbBackdrop.classList.add("show"); }
   function closeSidebar(){ if(sidebarEl) sidebarEl.classList.remove("open"); if(sbBackdrop) sbBackdrop.classList.remove("show"); }
@@ -5355,24 +5369,24 @@
     if(!el) return; mode=mode||"complete";
     var status=r.action_status||"not_started", assignee=assigneeName(r)||"Not assigned", due=escalationInfo(r);
     var completed=r.action_completed_at?("Completed "+fmtDate(r.action_completed_at)):"", verified=r.action_verified_at?("Verified "+fmtDate(r.action_verified_at)):"";
-    var h='<div class="action-head"><div><h4>'+(mode==="verify"?'Verification review':'Assigned corrective action')+'</h4><p>'+esc(assignee)+(r.due_date?' · '+esc(due.label):' · no due date')+'</p></div><span class="action-state as-'+esc(status)+'">'+esc(actionLabel(status))+'</span></div>';
-    if(r.corrective_action&&String(r.corrective_action).trim()) h+='<div class="action-context"><b>Corrective action required</b><p>'+esc(r.corrective_action)+'</p>'+(r.corrective_control_type?'<div class="action-meta">Control type: '+esc(controlTypeLabel(r.corrective_control_type)||r.corrective_control_type)+'</div>':'')+'</div>';
-    else h+='<div class="wizard-required show">The corrective action plan has not been completed yet.</div>';
+    var h='<div class="action-head"><div><h4>'+(mode==="verify"?'Fix to approve':'Your fix')+'</h4><p>'+esc(assignee)+(r.due_date?' · '+esc(due.label):' · no due date')+'</p></div><span class="action-state as-'+esc(status)+'">'+esc(actionLabel(status))+'</span></div>';
+    if(r.corrective_action&&String(r.corrective_action).trim()) h+='<div class="action-context"><b>What will be fixed</b><p>'+esc(r.corrective_action)+'</p>'+(r.corrective_control_type?'<div class="action-meta">Type of fix: '+esc(controlTypeLabel(r.corrective_control_type)||r.corrective_control_type)+'</div>':'')+'</div>';
+    else h+='<div class="wizard-required show">The fix plan has not been filled in yet.</div>';
 
     if(mode==="complete"){
       if(status==="changes_requested"&&r.action_verification_note) h+='<div class="ops-alert critical"><b>Changes requested by reviewer</b>'+esc(r.action_verification_note)+'</div>';
-      if(status==="awaiting_verification"){ h+='<div class="ops-alert"><b>Waiting for verification</b>Your completed work has been submitted. An Admin or Safety Manager must review it before the record can move forward.</div>'; }
-      if(status==="verified"){ h+='<div class="ops-alert"><b>Corrective action verified</b>This step is complete.</div>'; }
+      if(status==="awaiting_verification"){ h+='<div class="ops-alert"><b>Waiting for approval</b>Your finished work was sent. An Admin or Safety Manager will check it next.</div>'; }
+      if(status==="verified"){ h+='<div class="ops-alert"><b>Fix approved</b>This step is done.</div>'; }
       if(canEditStep(r,4)&&status!=="verified"){
         var label=status==="changes_requested"?'Update completed work':(status==="awaiting_verification"?'Completed work submitted':'What did you complete?');
-        var help=status==="changes_requested"?'Update the note to explain the corrected work, then resubmit it.':(status==="awaiting_verification"?'The submitted completion note is shown below. You can correct the wording while it is waiting for verification.':'Describe exactly what was done. This note is required before submission.');
+        var help=status==="changes_requested"?'Update the note to explain the corrected work, then resubmit it.':(status==="awaiting_verification"?'Your completion note is below. You can fix the wording while it waits for approval.':'Describe exactly what was done. This note is required before submission.');
         h+='<label class="inv-l">'+label+'<textarea class="action-note" placeholder="Describe what was completed or changed.">'+esc(r.action_completion_note||'')+'</textarea></label><div class="translation-preview" data-translation-field="action_completion_note" hidden></div><p class="action-help">'+help+'</p>';
       } else if(r.action_completion_note){ h+='<div class="action-context"><b>Completed work submitted</b><p>'+esc(r.action_completion_note)+'</p></div><div class="translation-preview" data-translation-field="action_completion_note" hidden></div>'; }
       if(completed){var cb=r.action_completed_by&&profileById[String(r.action_completed_by)]?profileName(profileById[String(r.action_completed_by)]):'';h+='<div class="action-meta">'+esc(completed)+(cb?' by '+esc(cb):'')+'</div>';}
       h+='<div class="evidence-panel" data-action-evidence></div>';
       if(canEditStep(r,4)&&status!=="verified"){
-        var primary=(status==="awaiting_verification")?'':(status==="changes_requested"?'Resubmit for verification →':'Submit for verification →');
-        h+='<div class="wizard-footer"><div class="wizard-footer-copy">Save and close keeps a draft. Submit for verification hands the completed work to the reviewer.</div><div class="wizard-footer-actions"><button class="wizard-save btn-save-completion" data-step-save="4" type="button">Save and close</button><span class="completion-saved section-saved" hidden>Saved ✓</span>'+(primary?'<button class="wizard-primary btn-complete" data-step-complete="4" type="button">'+primary+'</button>':'')+'</div></div>';
+        var primary=(status==="awaiting_verification")?'':(status==="changes_requested"?'Send again for approval →':'Send for approval →');
+        h+='<div class="wizard-footer"><div class="wizard-footer-copy">Save and close keeps your work for later. Send for approval passes the finished fix to the approver.</div><div class="wizard-footer-actions"><button class="wizard-save btn-save-completion" data-step-save="4" type="button">Save and close</button><span class="completion-saved section-saved" hidden>Saved ✓</span>'+(primary?'<button class="wizard-primary btn-complete" data-step-complete="4" type="button">'+primary+'</button>':'')+'</div></div>';
       }
     } else {
       if(r.action_completion_note) h+='<div class="action-context"><b>Completed work submitted</b><p>'+esc(r.action_completion_note)+'</p></div><div class="translation-preview" data-translation-field="action_completion_note" hidden></div>';
@@ -5381,50 +5395,50 @@
       if(status==="awaiting_verification"){
         var vName=verifierName(r), vAssigned=!!r.verifier_user_id;
         h+='<div class="investigator-card verifier-card" data-verifier-card>'+
-          '<div class="investigator-head"><div><b>Verification owner <span style="font-weight:500;color:var(--muted)">(optional)</span></b><p>Leave unassigned for a shared Admin/Safety Manager queue, or choose one reviewer for clear ownership. When practical, use someone other than the corrective-action owner.</p></div><span class="investigator-chip'+(vAssigned?' assigned':'')+'" data-verifier-chip>'+(vAssigned?'Assigned':'Shared queue')+'</span></div>';
+          '<div class="investigator-head"><div><b>Approver <span style="font-weight:500;color:var(--muted)">(optional)</span></b><p>Leave blank so any Admin or Safety Manager can approve, or pick one person. When you can, pick someone other than the person who did the fix.</p></div><span class="investigator-chip'+(vAssigned?' assigned':'')+'" data-verifier-chip>'+(vAssigned?'Assigned':'Shared queue')+'</span></div>';
         if(canVerify()){
           h+='<div class="investigator-controls">'+
-            '<label class="inv-l">Assigned verifier<select class="verify-owner-select">'+verifierOptions(r.verifier_user_id)+'</select></label>'+
+            '<label class="inv-l">Approver<select class="verify-owner-select">'+verifierOptions(r.verifier_user_id)+'</select></label>'+
             '<button class="wizard-save verifier-self" type="button">Assign to me</button>'+
             '<button class="wizard-primary verifier-save" type="button">Save assignment</button>'+
           '</div><span class="investigator-saved verifier-saved" hidden>Assignment saved ✓</span>';
-          if(vAssigned && String(r.verifier_user_id||"")===String(r.assigned_user_id||"")) h+='<div class="ops-alert"><b>Independence check</b>The verification owner is also the corrective-action owner. This is allowed, but use a different qualified reviewer when practical.</div>';
+          if(vAssigned && String(r.verifier_user_id||"")===String(r.assigned_user_id||"")) h+='<div class="ops-alert"><b>Same person check</b>The approver also did the fix. That is allowed, but a second set of eyes is better when you have one.</div>';
         } else {
-          h+='<div class="investigator-permission">'+(vAssigned?('Verification is assigned to '+esc(vName||"an Admin/Safety Manager")+'.'):'Verification is currently in the shared Admin/Safety Manager queue.')+'</div>';
+          h+='<div class="investigator-permission">'+(vAssigned?('Approval is assigned to '+esc(vName||"an Admin/Safety Manager")+'.'):'Any Admin or Safety Manager can approve this fix.')+'</div>';
         }
         h+='</div>';
         if(canPerformVerification(r)){
-          h+='<label class="inv-l">Reviewer verification note <span style="font-weight:400;color:var(--muted)">(optional when approving)</span><textarea class="verify-note" placeholder="What did you verify? If requesting changes, explain exactly what still needs to be done.">'+esc(r.action_verification_note||'')+'</textarea></label><div class="wizard-required" data-verify-required>Add a verification note explaining the requested changes.</div>'+
-            '<div class="translation-preview" data-translation-field="action_verification_note" hidden></div><div class="wizard-footer"><div class="wizard-footer-copy">Save and close keeps a draft. Verify advances the record; Request changes returns it to Step 4.</div><div class="wizard-footer-actions"><button class="wizard-save btn-save-verification" data-step-save="5" type="button">Save and close</button><span class="verification-saved section-saved" hidden>Saved ✓</span><button class="btn-changes" type="button">Request changes</button><button class="wizard-primary btn-verify" data-step-complete="5" type="button">Verify &amp; continue →</button></div></div>';
+          h+='<label class="inv-l">Approval note <span style="font-weight:400;color:var(--muted)">(optional when approving)</span><textarea class="verify-note" placeholder="What did you check? If sending it back, say exactly what still needs to be done.">'+esc(r.action_verification_note||'')+'</textarea></label><div class="wizard-required" data-verify-required>Add a note saying what still needs to be done.</div>'+
+            '<div class="translation-preview" data-translation-field="action_verification_note" hidden></div><div class="wizard-footer"><div class="wizard-footer-copy">Save and close keeps your work for later. Approve moves the report forward; Send back returns it to Step 4.</div><div class="wizard-footer-actions"><button class="wizard-save btn-save-verification" data-step-save="5" type="button">Save and close</button><span class="verification-saved section-saved" hidden>Saved ✓</span><button class="btn-changes" type="button">Send back for changes</button><button class="wizard-primary btn-verify" data-step-complete="5" type="button">Approve fix &amp; continue →</button></div></div>';
         } else if(isManager()){
-          h+='<div class="readonly-step-note">Verification is assigned to '+esc(vName||"another reviewer")+'. Reassign the verification owner above if responsibility needs to change.</div>';
+          h+='<div class="readonly-step-note">Approval is assigned to '+esc(vName||"another reviewer")+'. Change the approver above if someone else should do it.</div>';
         } else {
-          h+='<div class="readonly-step-note">An Admin or Safety Manager handles verification. Assigned reviewer: '+esc(vName||"shared verification queue")+'.</div>';
+          h+='<div class="readonly-step-note">An Admin or Safety Manager approves fixes. Approver: '+esc(vName||"any Admin or Safety Manager")+'.</div>';
         }
       } else if(status==="verified"){
-        if(r.verifier_user_id) h+='<div class="action-meta">Verification owner: '+esc(verifierName(r)||"Assigned reviewer")+'</div>';
-        if(r.action_verification_note) h+='<div class="action-context"><b>Verification note</b><p>'+esc(r.action_verification_note)+'</p></div><div class="translation-preview" data-translation-field="action_verification_note" hidden></div>';
+        if(r.verifier_user_id) h+='<div class="action-meta">Approver: '+esc(verifierName(r)||"Assigned reviewer")+'</div>';
+        if(r.action_verification_note) h+='<div class="action-context"><b>Approval note</b><p>'+esc(r.action_verification_note)+'</p></div><div class="translation-preview" data-translation-field="action_verification_note" hidden></div>';
         if(verified){var vb=r.action_verified_by&&profileById[String(r.action_verified_by)]?profileName(profileById[String(r.action_verified_by)]):'';h+='<div class="action-meta">'+esc(verified)+(vb?' by '+esc(vb):'')+'</div>';}
-        h+='<div class="ops-alert"><b>Verification complete</b>The corrective action was approved. Continue to Close Record.</div>';
+        h+='<div class="ops-alert"><b>Fix approved</b>Continue to Close.</div>';
       } else if(status==="changes_requested") h+='<div class="readonly-step-note">Changes were requested. Step 4 is active again so the assigned owner can update and resubmit the work.</div>';
-      else h+='<div class="readonly-step-note">This step becomes available after the assigned owner submits Step 4 for verification.</div>';
+      else h+='<div class="readonly-step-note">This step opens after the fix is done and sent for approval in Step 4.</div>';
     }
     el.innerHTML=h;
     renderActionEvidence(r,el.querySelector("[data-action-evidence]"),auditEl);
     if(activeIncident===r) translateReportForLanguage(r,activeIncidentLanguage).then(function(tx){ if(tx&&activeIncident===r) applyReportLanguageToOpenIncident(r,activeIncidentLanguage,tx); });
 
     var saveCompletionBtn=el.querySelector(".btn-save-completion"); if(saveCompletionBtn) saveCompletionBtn.addEventListener("click",async function(){
-      if(!canEditStep(r,4)){toast("Only the assigned corrective-action owner or an Admin/Safety Manager can update this work.","err");return;}
+      if(!canEditStep(r,4)){toast("Only the person doing this fix or an Admin/Safety Manager can update this work.","err");return;}
       await waitForActionEvidenceUpload(r.id);
       var note=(el.querySelector(".action-note")&&el.querySelector(".action-note").value.trim())||""; saveCompletionBtn.disabled=true;
       try{var patch={action_completion_note:note||null};if((r.action_status||"not_started")==="not_started"&&note)patch.action_status="in_progress";var res=await sb.from("reports").update(patch).eq("id",r.id);if(res.error)throw res.error;Object.keys(patch).forEach(function(k){r[k]=patch[k];});var flag=el.querySelector(".completion-saved");if(flag){flag.hidden=false;setTimeout(function(){flag.hidden=true;},2200);}toast("Completion note saved","ok");loadAudit(r.id,auditEl);refreshRecordWorkflow(r,detail);renderHomeSnapshot();renderMyWork();showView("home");}
       catch(ex){console.error(ex);toast("Could not save completion note.","err");}finally{if(saveCompletionBtn.isConnected)saveCompletionBtn.disabled=false;}
     });
     var completeBtn=el.querySelector(".btn-complete"); if(completeBtn) completeBtn.addEventListener("click",async function(){
-      if(!canEditStep(r,4)){toast("Only the assigned corrective-action owner or an Admin/Safety Manager can submit this work.","err");return;}
+      if(!canEditStep(r,4)){toast("Only the person doing this fix or an Admin/Safety Manager can send this work.","err");return;}
       await waitForActionEvidenceUpload(r.id);
       var note=(el.querySelector(".action-note")&&el.querySelector(".action-note").value.trim())||"";
-      if(!note){toast("Describe what was completed before submitting for verification.","err");return;}
+      if(!note){toast("Say what was done before sending it for approval.","err");return;}
       completeBtn.disabled=true;
       try{
         var uid=currentSession&&currentSession.user?currentSession.user.id:null;
@@ -5442,17 +5456,17 @@
         var sentCount=Number(notify&&notify.sentCount||0), duplicateCount=Number(notify&&notify.duplicateCount||0), failedCount=Number(notify&&notify.failedCount||0);
         if(notify&&notify.ok&&(sentCount>0||duplicateCount>0)&&failedCount===0){
           var total=sentCount+duplicateCount;
-          toast("Corrective action submitted — "+total+" reviewer"+(total===1?"":"s")+" notified by email","ok");
+          toast("Fix sent for approval — "+total+" reviewer"+(total===1?"":"s")+" notified by email","ok");
         } else if(notify&&notify.ok&&sentCount>0&&failedCount>0){
-          toast("Corrective action submitted — some reviewer emails could not be sent.","err");
+          toast("Fix sent for approval — some approver emails could not be sent.","err");
         } else if(notify&&notify.skipped&&(notify.reason==="NO_VERIFIER_EMAILS"||notify.reason==="NO_VERIFIER_EMAIL")){
-          toast(notify.reason==="NO_VERIFIER_EMAIL"?"Corrective action submitted — the assigned verification owner has no email available.":"Corrective action submitted — no Admin or Safety Manager email was available.","ok");
+          toast(notify.reason==="NO_VERIFIER_EMAIL"?"Fix sent for approval — the approver has no email on file.":"Fix sent for approval — no Admin or Safety Manager email was on file.","ok");
         } else {
           console.error("verification-request notification failed",notify);
-          toast("Corrective action submitted, but the reviewer email notification could not be sent.","err");
+          toast("Fix sent for approval, but the approver email could not be sent.","err");
         }
       }
-      catch(ex){console.error(ex);toast("Could not submit the corrective action.","err");}
+      catch(ex){console.error(ex);toast("Could not send the fix for approval.","err");}
       finally{if(completeBtn.isConnected)completeBtn.disabled=false;}
     });
     var verifierSelect=el.querySelector(".verify-owner-select"), verifierSave=el.querySelector(".verifier-save"), verifierSelf=el.querySelector(".verifier-self");
@@ -5463,7 +5477,7 @@
         var vp=profileById[String(nextId)];
         if(!vp || vp.is_active===false || (vp.app_role!=="admin"&&vp.app_role!=="safety_manager")) throw new Error("INVALID_VERIFIER");
       }
-      if(String(r.verifier_user_id||"")===String(nextId||"")){ if(showToast) toast("Verification owner is already up to date","ok"); return true; }
+      if(String(r.verifier_user_id||"")===String(nextId||"")){ if(showToast) toast("Approver is already set","ok"); return true; }
       var vr=await sb.from("reports").update({verifier_user_id:nextId}).eq("id",r.id);
       if(vr.error) throw vr.error;
       r.verifier_user_id=nextId;
@@ -5472,23 +5486,23 @@
       var notify=null;
       if(nextId) notify=await sendVerifierAssignmentEmail(r);
       if(showToast){
-        if(!nextId) toast("Verification returned to the shared queue","ok");
-        else if(notify&&notify.sent) toast(notify.duplicate?"Verification owner assigned — email was already sent":"Verification owner assigned — email notification sent","ok");
-        else if(notify&&notify.skipped&&(notify.reason==="NO_VERIFIER_EMAIL"||notify.reason==="SEND_ALREADY_IN_PROGRESS")) toast(notify.reason==="NO_VERIFIER_EMAIL"?"Verification owner assigned — no email is available for that user":"Verification owner assigned — email notification is already in progress","ok");
-        else { console.error("verifier assignment notification failed",notify); toast("Verification owner assigned, but the email notification could not be sent.","err"); }
+        if(!nextId) toast("Any Admin or Safety Manager can now approve","ok");
+        else if(notify&&notify.sent) toast(notify.duplicate?"Approver assigned — email was already sent":"Approver assigned — email sent","ok");
+        else if(notify&&notify.skipped&&(notify.reason==="NO_VERIFIER_EMAIL"||notify.reason==="SEND_ALREADY_IN_PROGRESS")) toast(notify.reason==="NO_VERIFIER_EMAIL"?"Approver assigned — no email on file for that person":"Approver assigned — email is on its way","ok");
+        else { console.error("verifier assignment notification failed",notify); toast("Approver assigned, but the email could not be sent.","err"); }
       }
       return true;
     }
-    if(verifierSave) verifierSave.addEventListener("click",async function(){verifierSave.disabled=true;try{await persistVerifierAssignment(verifierSelect?verifierSelect.value:null,true);}catch(ex){console.error(ex);toast(ex&&ex.message==="INVALID_VERIFIER"?"Choose an active Admin or Safety Manager.":"Could not save the verification owner.","err");}finally{if(verifierSave.isConnected)verifierSave.disabled=false;}});
-    if(verifierSelf) verifierSelf.addEventListener("click",async function(){if(!currentSession||!currentSession.user)return;verifierSelf.disabled=true;try{if(verifierSelect)verifierSelect.value=currentSession.user.id;await persistVerifierAssignment(currentSession.user.id,true);}catch(ex){console.error(ex);toast("Could not assign verification to you.","err");}finally{if(verifierSelf.isConnected)verifierSelf.disabled=false;}});
-    var saveVerificationBtn=el.querySelector(".btn-save-verification"); if(saveVerificationBtn) saveVerificationBtn.addEventListener("click",async function(){if(!canPerformVerification(r)){toast("This verification is assigned to another reviewer.","err");return;}await waitForActionEvidenceUpload(r.id);var note=(el.querySelector(".verify-note")&&el.querySelector(".verify-note").value.trim())||null;saveVerificationBtn.disabled=true;try{var res=await sb.from("reports").update({action_verification_note:note}).eq("id",r.id);if(res.error)throw res.error;r.action_verification_note=note;var flag=el.querySelector(".verification-saved");if(flag){flag.hidden=false;setTimeout(function(){flag.hidden=true;},2200);}toast("Verification note saved","ok");loadAudit(r.id,auditEl);showView("home");}catch(ex){console.error(ex);toast("Could not save verification note.","err");}finally{if(saveVerificationBtn.isConnected)saveVerificationBtn.disabled=false;}});
-    var verifyBtn=el.querySelector(".btn-verify"); if(verifyBtn) verifyBtn.addEventListener("click",async function(){if(!canPerformVerification(r)){toast("This verification is assigned to another reviewer.","err");return;}verifyBtn.disabled=true;try{await waitForActionEvidenceUpload(r.id);var note=(el.querySelector(".verify-note")&&el.querySelector(".verify-note").value.trim())||null;var patch={action_status:"verified",action_verified_at:new Date().toISOString(),action_verified_by:currentSession.user.id,action_verification_note:note};if(!r.verifier_user_id)patch.verifier_user_id=currentSession.user.id;if(activeReopenStep(r))patch.reopen_workflow_step=6;var res=await sb.from("reports").update(patch).eq("id",r.id);if(res.error)throw res.error;Object.keys(patch).forEach(function(k){r[k]=patch[k];});renderActionWorkflow(r,detail.querySelector("[data-action-completion]"),auditEl,detail,"complete");renderActionWorkflow(r,detail.querySelector("[data-action-verification]"),auditEl,detail,"verify");loadAudit(r.id,auditEl);renderHomeSnapshot();renderMyWork();refreshRecordWorkflow(r,detail);setWizardStep(detail,r,6,true);toast("Corrective action verified — ready for closure","ok");}catch(ex){console.error(ex);toast("Could not verify corrective action.","err");}finally{if(verifyBtn.isConnected)verifyBtn.disabled=false;}});
+    if(verifierSave) verifierSave.addEventListener("click",async function(){verifierSave.disabled=true;try{await persistVerifierAssignment(verifierSelect?verifierSelect.value:null,true);}catch(ex){console.error(ex);toast(ex&&ex.message==="INVALID_VERIFIER"?"Choose an active Admin or Safety Manager.":"Could not save the approver.","err");}finally{if(verifierSave.isConnected)verifierSave.disabled=false;}});
+    if(verifierSelf) verifierSelf.addEventListener("click",async function(){if(!currentSession||!currentSession.user)return;verifierSelf.disabled=true;try{if(verifierSelect)verifierSelect.value=currentSession.user.id;await persistVerifierAssignment(currentSession.user.id,true);}catch(ex){console.error(ex);toast("Could not make you the approver.","err");}finally{if(verifierSelf.isConnected)verifierSelf.disabled=false;}});
+    var saveVerificationBtn=el.querySelector(".btn-save-verification"); if(saveVerificationBtn) saveVerificationBtn.addEventListener("click",async function(){if(!canPerformVerification(r)){toast("This fix is assigned to another approver.","err");return;}await waitForActionEvidenceUpload(r.id);var note=(el.querySelector(".verify-note")&&el.querySelector(".verify-note").value.trim())||null;saveVerificationBtn.disabled=true;try{var res=await sb.from("reports").update({action_verification_note:note}).eq("id",r.id);if(res.error)throw res.error;r.action_verification_note=note;var flag=el.querySelector(".verification-saved");if(flag){flag.hidden=false;setTimeout(function(){flag.hidden=true;},2200);}toast("Approval note saved","ok");loadAudit(r.id,auditEl);showView("home");}catch(ex){console.error(ex);toast("Could not save the approval note.","err");}finally{if(saveVerificationBtn.isConnected)saveVerificationBtn.disabled=false;}});
+    var verifyBtn=el.querySelector(".btn-verify"); if(verifyBtn) verifyBtn.addEventListener("click",async function(){if(!canPerformVerification(r)){toast("This fix is assigned to another approver.","err");return;}verifyBtn.disabled=true;try{await waitForActionEvidenceUpload(r.id);var note=(el.querySelector(".verify-note")&&el.querySelector(".verify-note").value.trim())||null;var patch={action_status:"verified",action_verified_at:new Date().toISOString(),action_verified_by:currentSession.user.id,action_verification_note:note};if(!r.verifier_user_id)patch.verifier_user_id=currentSession.user.id;if(activeReopenStep(r))patch.reopen_workflow_step=6;var res=await sb.from("reports").update(patch).eq("id",r.id);if(res.error)throw res.error;Object.keys(patch).forEach(function(k){r[k]=patch[k];});renderActionWorkflow(r,detail.querySelector("[data-action-completion]"),auditEl,detail,"complete");renderActionWorkflow(r,detail.querySelector("[data-action-verification]"),auditEl,detail,"verify");loadAudit(r.id,auditEl);renderHomeSnapshot();renderMyWork();refreshRecordWorkflow(r,detail);setWizardStep(detail,r,6,true);toast("Fix approved — ready to close","ok");}catch(ex){console.error(ex);toast("Could not approve the fix.","err");}finally{if(verifyBtn.isConnected)verifyBtn.disabled=false;}});
     var changesBtn=el.querySelector(".btn-changes"); if(changesBtn) changesBtn.addEventListener("click",async function(){
-      if(!canPerformVerification(r)){toast("This verification is assigned to another reviewer.","err");return;}
+      if(!canPerformVerification(r)){toast("This fix is assigned to another approver.","err");return;}
       await waitForActionEvidenceUpload(r.id);
       var note=(el.querySelector(".verify-note")&&el.querySelector(".verify-note").value.trim())||"";
       var req=el.querySelector("[data-verify-required]");
-      if(!note){if(req)req.classList.add("show");toast("Explain what evidence or changes are still needed before sending the action back.","err");return;}
+      if(!note){if(req)req.classList.add("show");toast("Say what still needs to be done before sending this fix back.","err");return;}
       if(req)req.classList.remove("show");
       changesBtn.disabled=true;
       try{
@@ -5627,17 +5641,17 @@
     var canManage=canManageActionEvidence(r,correctiveAction||null);
     var countLabel=arr.length+(arr.length===1?" file":" files");
     var heading=correctiveAction&&correctiveAction.action_number
-      ? "Corrective Action #"+correctiveAction.action_number+" evidence"
-      : "Corrective-action evidence";
+      ? "Fix #"+correctiveAction.action_number+" evidence"
+      : "Photos of the fix";
     var emptyLabel=correctiveAction
-      ? "No evidence uploaded for this corrective action."
-      : "No corrective-action evidence uploaded in the current workflow.";
+      ? "No photos or files for this fix yet."
+      : "No photos or files for this fix yet.";
 
     el.innerHTML=
-      '<div class="evidence-head"><div><b>'+esc(heading)+'</b><span>Photos or files that show what was fixed. Evidence stays with this corrective action throughout completion and verification.</span></div><span class="evidence-count">'+countLabel+'</span></div>'+
-      '<div class="evidence-files" data-evidence-files>'+(arr.length?'<span class="evidence-empty">Loading evidence…</span>':'<span class="evidence-empty">'+esc(emptyLabel)+'</span>')+'</div>'+
-      (priorEvidence.length?'<details class="evidence-history"><summary>Earlier workflow evidence ('+priorEvidence.length+')</summary><div class="evidence-files" data-prior-evidence-files><span class="evidence-empty">Loading preserved evidence…</span></div></details>':'')+
-      (canManage?'<div class="evidence-upload"><input class="evidence-file-input" type="file" multiple accept="image/*,.pdf,.doc,.docx"><button class="evidence-pick" type="button">Add evidence</button><span class="evidence-selected">Files save automatically after selection.</span><div class="evidence-help">Up to 5 files at a time, 10 MB each. Remove is available for mistakes; every removal is recorded in Activity.</div></div>':'');
+      '<div class="evidence-head"><div><b>'+esc(heading)+'</b><span>Photos or files that show the finished fix. They stay with this fix through approval.</span></div><span class="evidence-count">'+countLabel+'</span></div>'+
+      '<div class="evidence-files" data-evidence-files>'+(arr.length?'<span class="evidence-empty">Loading photos…</span>':'<span class="evidence-empty">'+esc(emptyLabel)+'</span>')+'</div>'+
+      (priorEvidence.length?'<details class="evidence-history"><summary>Earlier photos and files ('+priorEvidence.length+')</summary><div class="evidence-files" data-prior-evidence-files><span class="evidence-empty">Loading earlier photos…</span></div></details>':'')+
+      (canManage?'<div class="evidence-upload"><input class="evidence-file-input" type="file" multiple accept="image/*,.pdf,.doc,.docx"><button class="evidence-pick" type="button">Add photos or files</button><span class="evidence-selected">They save as soon as you pick them.</span><div class="evidence-help">Up to 5 files at a time, 10 MB each. You can remove one added by mistake; the removal is noted in the activity history.</div></div>':'');
 
     async function renderEvidenceFiles(items,target){
       if(!target||!items.length) return;
@@ -5653,11 +5667,11 @@
           var link=document.createElement("a"); link.href=d.signedUrl; link.target="_blank"; link.rel="noopener"; link.title=attachment.file_name||"Evidence";
           if(isImg){
             link.className="evidence-thumb";
-            var img=document.createElement("img"); img.src=d.signedUrl; img.loading="lazy"; img.alt=attachment.file_name||"Corrective-action evidence"; link.appendChild(img);
+            var img=document.createElement("img"); img.src=d.signedUrl; img.loading="lazy"; img.alt=attachment.file_name||"Photo of the fix"; link.appendChild(img);
           } else {
             link.className="evidence-file";
             link.innerHTML='<b>FILE</b><span></span>';
-            link.querySelector("span").textContent=attachment.file_name||"Evidence file";
+            link.querySelector("span").textContent=attachment.file_name||"Photo or file";
           }
           item.appendChild(link);
 
@@ -5689,7 +5703,7 @@
                       await renderActionEvidence(r,replacePanels[rpi],auditEl,correctiveAction||null);
                     }
                   }
-                  toast("Evidence replaced","ok");
+                  toast("File replaced","ok");
                 }catch(ex){
                   console.error(ex);
                   toast(ex&&ex.message?ex.message:"Could not replace the evidence file.","err");
@@ -5724,7 +5738,7 @@
                     await renderActionEvidence(r,removePanels[rmi],auditEl,correctiveAction||null);
                   }
                 }
-                toast("Evidence removed","ok");
+                toast("File removed","ok");
               }catch(ex){
                 console.error(ex);
                 toast(ex&&ex.message?ex.message:"Could not remove the evidence file.","err");
@@ -5790,10 +5804,10 @@
         }
       }catch(ex){
         console.error(ex);
-        toast(ex&&ex.message?ex.message:"Could not save corrective-action evidence.","err");
+        toast(ex&&ex.message?ex.message:"Could not save the photos or files.","err");
         pick.disabled=false;
-        pick.textContent="Add evidence";
-        selected.textContent="Evidence was not saved. Choose the file again.";
+        pick.textContent="Add photos or files";
+        selected.textContent="The file was not saved. Pick it again.";
         input.value="";
       }
     });
@@ -5814,58 +5828,58 @@
     if(a.field==="priority") return "Priority: "+(a.old_value||"—")+" → "+(a.new_value||"—");
     if(a.field==="responsible_person") return "Responsible person / crew: "+(a.old_value||"—")+" → "+(a.new_value||"—");
     if(a.field==="due_date") return "Due date: "+(a.old_value?shortDate(a.old_value):"—")+" → "+(a.new_value?shortDate(a.new_value):"—");
-    if(a.field==="assigned_user_id") return "Corrective-action owner: "+auditAssignee(a.old_value)+" → "+auditAssignee(a.new_value);
-    if(a.field==="investigator_user_id") return "Case owner / investigator: "+auditAssignee(a.old_value)+" → "+auditAssignee(a.new_value);
-    if(a.field==="verifier_user_id") return "Verification owner: "+auditAssignee(a.old_value)+" → "+auditAssignee(a.new_value);
-    if(a.field==="action_status") return "Corrective-action status: "+actionLabel(a.old_value)+" → "+actionLabel(a.new_value);
-    if(a.field==="action_completed_at") return a.new_value?"Corrective action submitted as complete":"Completion submission cleared";
-    if(a.field==="action_verified_at") return a.new_value?"Corrective action verified":"Verification cleared";
+    if(a.field==="assigned_user_id") return "Person doing the fix: "+auditAssignee(a.old_value)+" → "+auditAssignee(a.new_value);
+    if(a.field==="investigator_user_id") return "Case owner: "+auditAssignee(a.old_value)+" → "+auditAssignee(a.new_value);
+    if(a.field==="verifier_user_id") return "Approver: "+auditAssignee(a.old_value)+" → "+auditAssignee(a.new_value);
+    if(a.field==="action_status") return "Fix status: "+actionLabel(a.old_value)+" → "+actionLabel(a.new_value);
+    if(a.field==="action_completed_at") return a.new_value?"Fix sent for approval":"Completion submission cleared";
+    if(a.field==="action_verified_at") return a.new_value?"Fix approved":"Approval cleared";
     if(a.field==="action_completion_note") return "Completion note updated";
-    if(a.field==="action_verification_note") return "Verification / change-request note updated";
-    if(a.field==="root_cause") return "Root cause updated";
-    if(a.field==="corrective_action") return "Corrective action updated";
-    if(a.field==="corrective_control_type") return "Control type: "+(controlTypeLabel(a.old_value)||a.old_value||"—")+" → "+(controlTypeLabel(a.new_value)||a.new_value||"—");
-    if(a.field==="calosha_screening_status") return "Cal/OSHA screening: "+caloshaScreenLabel(a.old_value)+" → "+caloshaScreenLabel(a.new_value);
+    if(a.field==="action_verification_note") return "Approval note updated";
+    if(a.field==="root_cause") return "Cause updated";
+    if(a.field==="corrective_action") return "Fix updated";
+    if(a.field==="corrective_control_type") return "Type of fix: "+(controlTypeLabel(a.old_value)||a.old_value||"—")+" → "+(controlTypeLabel(a.new_value)||a.new_value||"—");
+    if(a.field==="calosha_screening_status") return "Cal/OSHA answer: "+caloshaScreenLabel(a.old_value)+" → "+caloshaScreenLabel(a.new_value);
     if(a.field==="calosha_awareness_at") return a.new_value?"RBH awareness time recorded":"RBH awareness time cleared";
     if(a.field==="closed_at") return a.new_value?"Closure timestamp recorded":"Closure timestamp cleared";
-    if(a.field==="workflow_restart_count") return "Workflow restart count: "+(a.old_value||"0")+" → "+(a.new_value||"0");
-    if(a.field==="last_workflow_restart_at") return a.new_value?"Workflow restart timestamp recorded":"Workflow restart timestamp cleared";
+    if(a.field==="workflow_restart_count") return "Times steps started over: "+(a.old_value||"0")+" → "+(a.new_value||"0");
+    if(a.field==="last_workflow_restart_at") return a.new_value?"Start-over time recorded":"Start-over time cleared";
     if(a.field==="reopen_count") return "Reopen count: "+(a.old_value||"0")+" → "+(a.new_value||"0");
-    if(a.field==="reopen_workflow_step") return a.new_value?("Reopened workflow advanced to Step "+a.new_value):"Reopened workflow cycle completed";
-    if(a.field==="last_reopened_at") return a.new_value?"Reopen timestamp recorded":"Reopen timestamp cleared";
+    if(a.field==="reopen_workflow_step") return a.new_value?("Reopened report moved to Step "+a.new_value):"Reopened round completed";
+    if(a.field==="last_reopened_at") return a.new_value?"Reopen time recorded":"Reopen time cleared";
     if(a.field==="last_reopen_from_status") return "Previous resolved status preserved: "+(STATUS[a.new_value]?STATUS[a.new_value].l:(a.new_value||"—"));
-    if(a.field==="last_reopen_reason_code"||a.field==="last_reopen_reason") return "Reopen reason documented";
+    if(a.field==="last_reopen_reason_code"||a.field==="last_reopen_reason") return "Reopen reason saved";
     return (a.field||"Record field")+" updated";
   }
   function auditGroupTitle(rows){
     var fields=rows.map(function(a){return a.field;});
     var actionRow=rows.find(function(a){return a.field==="action_status";});
     if(actionRow){
-      if(actionRow.new_value==="awaiting_verification") return "Corrective action submitted for verification";
-      if(actionRow.new_value==="verified") return "Corrective action verified";
-      if(actionRow.new_value==="changes_requested") return "Changes requested on corrective action";
-      if(actionRow.new_value==="in_progress") return "Corrective action moved into progress";
+      if(actionRow.new_value==="awaiting_verification") return "Fix sent for approval";
+      if(actionRow.new_value==="verified") return "Fix approved";
+      if(actionRow.new_value==="changes_requested") return "Fix sent back for changes";
+      if(actionRow.new_value==="in_progress") return "Fix started";
     }
     var statusRow=rows.find(function(a){return a.field==="status";});
     if(statusRow){
       if(statusRow.new_value==="closed") return "Report closed";
-      if(statusRow.new_value==="no_action") return "Report closed — no action required";
+      if(statusRow.new_value==="no_action") return "Report closed — no fix needed";
       if(statusRow.new_value==="duplicate") return "Report closed — duplicate";
-      if((statusRow.old_value==="closed"||statusRow.old_value==="no_action"||statusRow.old_value==="duplicate") && (statusRow.new_value==="new"||statusRow.new_value==="under_review"||statusRow.new_value==="corrective_action")) return "Record reopened";
+      if((statusRow.old_value==="closed"||statusRow.old_value==="no_action"||statusRow.old_value==="duplicate") && (statusRow.new_value==="new"||statusRow.new_value==="under_review"||statusRow.new_value==="corrective_action")) return "Report reopened";
       return "Report status updated";
     }
-    if(fields.indexOf("investigator_user_id")>=0) return "Investigator assignment updated";
-    if(fields.indexOf("verifier_user_id")>=0) return "Verification owner updated";
-    if(fields.some(function(f){return ["corrective_action","corrective_control_type","assigned_user_id","responsible_person","due_date","priority"].indexOf(f)>=0;})) return "Corrective-action plan updated";
-    if(fields.indexOf("calosha_screening_status")>=0 || fields.indexOf("calosha_awareness_at")>=0) return "Regulatory screening updated";
-    if(fields.indexOf("root_cause")>=0) return "Root cause updated";
+    if(fields.indexOf("investigator_user_id")>=0) return "Case owner updated";
+    if(fields.indexOf("verifier_user_id")>=0) return "Approver updated";
+    if(fields.some(function(f){return ["corrective_action","corrective_control_type","assigned_user_id","responsible_person","due_date","priority"].indexOf(f)>=0;})) return "Fix plan updated";
+    if(fields.indexOf("calosha_screening_status")>=0 || fields.indexOf("calosha_awareness_at")>=0) return "Cal/OSHA answer updated";
+    if(fields.indexOf("root_cause")>=0) return "Cause updated";
     if(fields.indexOf("action_completion_note")>=0) return "Completion note saved";
-    if(fields.indexOf("action_verification_note")>=0) return "Verification note saved";
+    if(fields.indexOf("action_verification_note")>=0) return "Approval note saved";
     return rows.length>1?"Record updated":fmtChange(rows[0]);
   }
   function timelineKind(title, rows){
     var t=String(title||"").toLowerCase();
-    if(t.indexOf("workflow restarted")>=0 || t.indexOf("record reopened")>=0) return "restart";
+    if(t.indexOf("steps started over")>=0 || t.indexOf("report reopened")>=0) return "restart";
     if(t.indexOf("evidence")>=0) return "evidence";
     if(t.indexOf("closed")>=0 || t.indexOf("verified")>=0) return "close";
     if(t.indexOf("corrective")>=0 || (rows&&rows.some(function(a){return String(a.field||"").indexOf("action_")===0;}))) return "action";
@@ -5903,7 +5917,7 @@
         var title=String(n.title||"Note added"), system=title.indexOf("[System]")===0;
         if(system) title=title.replace(/^\[System\]\s*/,"");
         var lowTitle=title.toLowerCase();
-        var kind=(lowTitle.indexOf("workflow restarted")>=0||lowTitle.indexOf("record reopened")>=0)?"restart":(lowTitle.indexOf("evidence")>=0?"evidence":(lowTitle.indexOf("closed without corrective action")>=0?"close":"note"));
+        var kind=(lowTitle.indexOf("steps started over")>=0||lowTitle.indexOf("report reopened")>=0)?"restart":(lowTitle.indexOf("evidence")>=0?"evidence":(lowTitle.indexOf("closed — no fix needed")>=0?"close":"note"));
         events.push({kind:kind,title:system?title:("Note added — "+title),created_at:n.created_at,actor:auditActor(n.author_email),detail:n.body||""});
       });
       var report=allReports.find(function(r){return String(r.id)===String(reportId);});
@@ -5973,7 +5987,7 @@
     var open=0,nw=0,inj=0,ov=0,verify=0;
     allReports.forEach(function(r){ if(r.status!=="closed"&&r.status!=="no_action"&&r.status!=="duplicate") open++; if(r.status==="new") nw++; if(r.involves_injury) inj++; if(isOverdue(r)) ov++; if(r.action_status==="awaiting_verification") verify++; });
     function tile(n,k,f,al){ return '<button class="hs'+(al&&n>0?" alert":"")+'" data-filter="'+f+'" type="button"><div class="hs-n">'+n+'</div><div class="hs-k">'+k+'</div></button>'; }
-    el.innerHTML=tile(open,"Open","open")+tile(nw,"New","new")+tile(ov,"Overdue","overdue",true)+tile(verify,"To verify","actions",true)+tile(inj,"Injuries","injuries",true);
+    el.innerHTML=tile(open,"Open","open")+tile(nw,"New","new")+tile(ov,"Overdue","overdue",true)+tile(verify,"To approve","actions",true)+tile(inj,"Injuries","injuries",true);
     el.querySelectorAll(".hs").forEach(function(b){ b.addEventListener("click", function(){ var f=b.getAttribute("data-filter"); if(f==="actions") showView("actions"); else goToRecords(f); }); });
   }
 
